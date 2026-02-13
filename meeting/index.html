@@ -18,11 +18,11 @@
             height: 100vh;
         }
 
-        /* Slideshow Container - Top 60% */
+        /* Slideshow Container - Expanded */
         .slideshow-container {
             position: fixed;
             width: 100%;
-            height: 60%;
+            height: 70%;
             top: 0;
             background: #000;
         }
@@ -33,6 +33,10 @@
             height: 100%;
             opacity: 0;
             transition: opacity 1.5s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
         }
 
         .slide.active {
@@ -43,6 +47,7 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
+            object-position: center center;
         }
 
         /* Dark Blue Top Bar */
@@ -51,7 +56,7 @@
             top: 0;
             left: 0;
             width: 100%;
-            background: #003d82;
+            background: #034581;
             padding: 1rem 2rem;
             z-index: 20;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
@@ -62,13 +67,13 @@
             width: auto;
         }
 
-        /* White Bottom Section - 40% */
+        /* White Bottom Section - 30% */
         .bottom-section {
             position: fixed;
             bottom: 0;
             left: 0;
             width: 100%;
-            height: 40%;
+            height: 30%;
             background: white;
             z-index: 10;
         }
@@ -102,7 +107,7 @@
         .meeting-info h1 strong {
             font-weight: 700;
             display: block;
-            color: #003d82;
+            color: #034581;
         }
 
         .meeting-info p {
@@ -127,13 +132,18 @@
         .center-logo {
             position: absolute;
             left: 50%;
-            top: -80px;
+            top: -100px;
             transform: translateX(-50%);
             background: white;
             padding: 1.5rem;
             border-radius: 12px;
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
             z-index: 15;
+            display: none;
+        }
+
+        .center-logo.show {
+            display: block;
         }
 
         .center-logo img {
@@ -146,7 +156,7 @@
 
         /* Right Side - Countdown */
         .countdown-section {
-            background: #003d82;
+            background: #034581;
             padding: 2rem 2.5rem;
             border-radius: 12px;
             text-align: center;
@@ -203,10 +213,19 @@
 
         /* Mobile Responsive */
         @media (max-width: 968px) {
+            .slideshow-container {
+                height: 60%;
+            }
+
+            .bottom-section {
+                height: 40%;
+            }
+
             .bottom-content {
                 flex-direction: column;
                 padding: 2rem 1.5rem;
                 gap: 1rem;
+                justify-content: center;
             }
 
             .meeting-info {
@@ -227,7 +246,7 @@
                 left: 0;
                 top: 0;
                 transform: none;
-                margin: 1rem auto;
+                margin: 0 auto 1rem;
             }
 
             .center-logo img {
@@ -274,7 +293,7 @@
     </style>
 </head>
 <body>
-    <!-- Slideshow Background - Top 60% -->
+    <!-- Slideshow Background - Top 70% -->
     <div class="slideshow-container" id="slideshow">
         <div class="slide active">
             <img src="slide1.png" alt="Slide 1">
@@ -298,10 +317,10 @@
         <img src="logo.png" alt="American Income Life">
     </div>
 
-    <!-- White Bottom Section - 40% -->
+    <!-- White Bottom Section - 30% -->
     <div class="bottom-section">
-        <!-- Center Meeting Type Logo -->
-        <div class="center-logo">
+        <!-- Center Meeting Type Logo (only shows if type is provided) -->
+        <div class="center-logo" id="center-logo">
             <img id="meeting-type-logo" src="" alt="Meeting Type">
         </div>
 
@@ -335,7 +354,7 @@
         }
 
         const meetingId = getUrlParameter('meeting');
-        const meetingType = getUrlParameter('type') || 'standard';
+        const meetingType = getUrlParameter('type');
         const waitTime = parseInt(getUrlParameter('wait')) || 10;
 
         // Meeting type configurations
@@ -378,14 +397,24 @@
             }
         };
 
-        // Get current meeting type config
-        const config = meetingTypes[meetingType] || meetingTypes.standard;
-
-        // Set meeting type logo and text
-        document.getElementById('meeting-type-logo').src = config.logo;
-        document.getElementById('meeting-title-line1').textContent = config.titleLine1;
-        document.getElementById('meeting-title-line2').textContent = config.titleLine2;
-        document.getElementById('meeting-message').textContent = config.message;
+        // Only show meeting type logo if type parameter is provided
+        if (meetingType && meetingTypes[meetingType]) {
+            const config = meetingTypes[meetingType];
+            
+            // Show and set meeting type logo
+            document.getElementById('center-logo').classList.add('show');
+            document.getElementById('meeting-type-logo').src = config.logo;
+            
+            // Update text
+            document.getElementById('meeting-title-line1').textContent = config.titleLine1;
+            document.getElementById('meeting-title-line2').textContent = config.titleLine2;
+            document.getElementById('meeting-message').textContent = config.message;
+        } else {
+            // No meeting type - use default text, no logo
+            document.getElementById('meeting-title-line1').textContent = 'Life Insurance:';
+            document.getElementById('meeting-title-line2').textContent = "It's for them.";
+            document.getElementById('meeting-message').textContent = 'Your representative will start the meeting soon';
+        }
 
         // Slideshow functionality
         let currentSlide = 0;
