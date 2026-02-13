@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>American Income Life - Meeting</title>
+    <title>American Income Life - Joining Meeting...</title>
     <style>
         * {
             margin: 0;
@@ -11,84 +11,83 @@
             box-sizing: border-box;
         }
 
-        body, html {
-            height: 100%;
-            width: 100%;
-            overflow: hidden;
+        body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        }
-
-        #meeting-iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-
-        .landing-page {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
             color: white;
-            text-align: center;
             padding: 2rem;
+        }
+
+        .container {
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
         }
 
         .card {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
             border-radius: 16px;
-            padding: 2.5rem;
-            max-width: 600px;
-            width: 100%;
+            padding: 3rem 2rem;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
 
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
+        .logo {
+            font-size: 5rem;
+            margin-bottom: 1.5rem;
+            animation: bounce 2s infinite;
         }
 
-        .subtitle {
-            opacity: 0.9;
-            margin-bottom: 2rem;
-            font-size: 1rem;
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
         }
 
         .meeting-name {
-            font-size: 2rem;
-            font-weight: 700;
+            font-size: 1.8rem;
             color: #ffd700;
+            font-weight: 700;
             margin: 1.5rem 0;
-            word-break: break-word;
             background: rgba(255, 215, 0, 0.1);
             padding: 1rem;
             border-radius: 8px;
+            word-break: break-word;
         }
 
-        .info {
-            background: rgba(255, 215, 0, 0.2);
-            border-left: 4px solid #ffd700;
-            padding: 1rem;
-            border-radius: 6px;
+        .message {
+            font-size: 1.1rem;
+            opacity: 0.9;
             margin: 1.5rem 0;
-            text-align: left;
-            font-size: 0.95rem;
             line-height: 1.6;
+        }
+
+        .countdown {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #ffd700;
+            margin: 2rem 0;
         }
 
         .btn {
             background: white;
             color: #1e3c72;
-            padding: 1rem 2rem;
+            padding: 1rem 2.5rem;
             border-radius: 8px;
             text-decoration: none;
             font-weight: 600;
             font-size: 1.1rem;
             display: inline-block;
-            margin: 0.5rem;
+            margin: 1rem 0.5rem;
             transition: all 0.3s;
             border: none;
             cursor: pointer;
@@ -99,12 +98,29 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
 
-        .example-links {
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+        }
+
+        .info {
+            background: rgba(255, 215, 0, 0.2);
+            border-left: 4px solid #ffd700;
+            padding: 1rem;
+            border-radius: 6px;
             margin-top: 2rem;
+            text-align: left;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .example-links {
             display: flex;
             flex-wrap: wrap;
             gap: 1rem;
             justify-content: center;
+            margin-top: 2rem;
         }
 
         .example-link {
@@ -114,10 +130,12 @@
             color: white;
             text-decoration: none;
             transition: all 0.2s;
+            font-weight: 500;
         }
 
         .example-link:hover {
             background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
         }
 
         code {
@@ -128,91 +146,119 @@
         }
 
         @media (max-width: 768px) {
-            h1 {
-                font-size: 1.8rem;
+            .card {
+                padding: 2rem 1.5rem;
             }
 
-            .card {
-                padding: 2rem;
+            h1 {
+                font-size: 1.5rem;
             }
 
             .meeting-name {
-                font-size: 1.5rem;
+                font-size: 1.4rem;
+            }
+
+            .countdown {
+                font-size: 2rem;
             }
         }
     </style>
 </head>
 <body>
-    <div id="app"></div>
+    <div class="container">
+        <div class="card" id="content"></div>
+    </div>
 
     <script>
-        // Get URL parameter
+        // Get meeting parameter from URL
         function getUrlParameter(name) {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get(name);
         }
 
-        const meetingParam = getUrlParameter('meeting');
+        const meetingId = getUrlParameter('meeting');
 
-        if (meetingParam) {
-            // Sanitize meeting name
-            const sanitizedName = meetingParam.replace(/[^a-zA-Z0-9-_]/g, '').toLowerCase();
+        if (meetingId) {
+            // Sanitize meeting ID (only alphanumeric, hyphens, underscores)
+            const sanitizedId = meetingId.replace(/[^a-zA-Z0-9-_]/g, '');
             
-            // Create Whereby room URL
-            // Whereby allows free temporary rooms with this format
-            const wherebyUrl = `https://whereby.com/americanincome-${sanitizedName}`;
+            // Create Jitsi meeting URL
+            const jitsiUrl = `https://meet.jit.si/AmericanIncome-${sanitizedId}`;
             
             // Update page title
-            document.title = `Meeting: ${sanitizedName}`;
+            document.title = `Joining: ${sanitizedId}`;
             
-            // Create iframe for Whereby
-            const iframe = document.createElement('iframe');
-            iframe.id = 'meeting-iframe';
-            iframe.src = wherebyUrl + '?embed&displayName=&background=off';
-            iframe.allow = 'camera; microphone; fullscreen; speaker; display-capture';
-            iframe.allowFullscreen = true;
+            // Show redirect page
+            document.getElementById('content').innerHTML = `
+                <div class="logo">🎥</div>
+                <h1>American Income Life</h1>
+                <div class="meeting-name">${sanitizedId}</div>
+                <div class="message">Redirecting you to the meeting...</div>
+                <div class="countdown" id="countdown">3</div>
+                <div>
+                    <a href="${jitsiUrl}" class="btn">Join Now</a>
+                    <button onclick="location.href='?'" class="btn btn-secondary">Cancel</button>
+                </div>
+                <div class="info">
+                    <strong>✓ No account needed</strong><br>
+                    <strong>✓ No downloads required</strong><br>
+                    <strong>✓ Just allow camera & microphone</strong><br><br>
+                    You'll be redirected to Jitsi Meet in a moment...
+                </div>
+            `;
+
+            // Countdown and redirect
+            let count = 3;
+            const countdownEl = document.getElementById('countdown');
             
-            document.getElementById('app').appendChild(iframe);
-            
+            const interval = setInterval(() => {
+                count--;
+                if (count > 0) {
+                    countdownEl.textContent = count;
+                } else {
+                    clearInterval(interval);
+                    // Redirect to Jitsi
+                    window.location.href = jitsiUrl;
+                }
+            }, 1000);
+
         } else {
-            // Show landing page
-            document.getElementById('app').innerHTML = `
-                <div class="landing-page">
-                    <div class="card">
-                        <h1>🎥 Video Meetings</h1>
-                        <div class="subtitle">American Income Life</div>
-                        
-                        <p style="margin: 1.5rem 0; line-height: 1.6;">
-                            Create instant video meetings by adding a meeting name to the URL
-                        </p>
-                        
-                        <div class="info">
-                            <strong>📝 How to use:</strong><br><br>
-                            Add <code>?meeting=YourName</code> to the URL<br><br>
-                            <strong>Example:</strong><br>
-                            <code>www.americanincome.life/meeting.html?meeting=Thomaslancherosail</code>
-                        </div>
-                        
-                        <div style="margin-top: 2rem;">
-                            <strong>Try it now:</strong>
-                        </div>
-                        
-                        <div class="example-links">
-                            <a href="?meeting=TeamMeeting" class="example-link">Team Meeting</a>
-                            <a href="?meeting=Training" class="example-link">Training Room</a>
-                            <a href="?meeting=Support" class="example-link">Support Call</a>
-                            <a href="?meeting=Sales" class="example-link">Sales Call</a>
-                        </div>
-                        
-                        <div class="info" style="margin-top: 2rem;">
-                            <strong>✨ Features:</strong><br>
-                            • No downloads required<br>
-                            • Works on any device<br>
-                            • Screen sharing included<br>
-                            • Up to 4 people (free tier)<br>
-                            • Simple and professional
-                        </div>
-                    </div>
+            // No meeting ID - show landing page
+            document.getElementById('content').innerHTML = `
+                <div class="logo">🎥</div>
+                <h1>American Income Life</h1>
+                <p style="font-size: 1.2rem; margin: 1.5rem 0;">Video Meetings</p>
+                
+                <div class="message">
+                    Create instant video meetings with a simple link
+                </div>
+                
+                <div class="info">
+                    <strong>How to use:</strong><br><br>
+                    Add <code>?meeting=YourMeetingID</code> to the URL<br><br>
+                    <strong>Example:</strong><br>
+                    <code>www.americanincome.life/meeting.html?meeting=Thomaslancherosail</code>
+                </div>
+
+                <div style="margin-top: 2rem;">
+                    <strong>Try these examples:</strong>
+                </div>
+                
+                <div class="example-links">
+                    <a href="?meeting=TeamMeeting" class="example-link">Team Meeting</a>
+                    <a href="?meeting=Training" class="example-link">Training</a>
+                    <a href="?meeting=SalesCall" class="example-link">Sales Call</a>
+                    <a href="?meeting=Support" class="example-link">Support</a>
+                </div>
+
+                <div class="info" style="margin-top: 2rem;">
+                    <strong>Features:</strong><br>
+                    ✓ No account required<br>
+                    ✓ No downloads needed<br>
+                    ✓ Works on any device<br>
+                    ✓ Unlimited participants<br>
+                    ✓ Screen sharing included<br>
+                    ✓ Free forever
                 </div>
             `;
         }
