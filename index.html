@@ -24,7 +24,7 @@
             border: none;
         }
 
-        .no-meeting {
+        .meeting-page {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -36,23 +36,63 @@
             padding: 2rem;
         }
 
-        .no-meeting h1 {
+        .meeting-page h1 {
             font-size: 2rem;
             margin-bottom: 1rem;
         }
 
-        .no-meeting p {
+        .meeting-page p {
             font-size: 1.1rem;
             opacity: 0.9;
             max-width: 600px;
             line-height: 1.6;
+            margin-bottom: 2rem;
         }
 
-        .no-meeting code {
+        .meeting-page code {
             background: rgba(255, 255, 255, 0.2);
             padding: 0.25rem 0.5rem;
             border-radius: 4px;
             font-family: monospace;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            background: white;
+            color: #1e3c72;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
         }
 
         .example-links {
@@ -77,13 +117,50 @@
             transform: translateY(-2px);
         }
 
+        .meeting-info {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-top: 2rem;
+            max-width: 600px;
+        }
+
+        .meeting-info h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .meeting-name {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #ffd700;
+            margin: 1rem 0;
+            word-break: break-word;
+        }
+
+        .info-text {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
         @media (max-width: 768px) {
-            .no-meeting h1 {
+            .meeting-page h1 {
                 font-size: 1.5rem;
             }
 
-            .no-meeting p {
+            .meeting-page p {
                 font-size: 1rem;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .meeting-info {
+                padding: 1.5rem;
             }
         }
     </style>
@@ -105,24 +182,60 @@
             // Sanitize meeting name
             const sanitizedName = meetingName.replace(/[^a-zA-Z0-9-_]/g, '');
             
-            // Create Jitsi iframe URL
-            const jitsiUrl = `https://meet.jit.si/${sanitizedName}`;
-            
-            // Create and insert iframe
-            const iframe = document.createElement('iframe');
-            iframe.id = 'jitsi-iframe';
-            iframe.src = jitsiUrl;
-            iframe.allow = 'camera; microphone; fullscreen; display-capture; autoplay';
-            iframe.allowFullscreen = true;
-            
-            document.getElementById('meeting-container').appendChild(iframe);
+            // Create Jitsi meeting URL - using meet.jit.si
+            const jitsiMeetingUrl = `https://meet.jit.si/${sanitizedName}`;
             
             // Update page title
             document.title = `Meeting: ${sanitizedName}`;
+            
+            // Create meeting page with options
+            document.getElementById('meeting-container').innerHTML = `
+                <div class="meeting-page">
+                    <h1>🎥 American Income Life - Video Meeting</h1>
+                    
+                    <div class="meeting-info">
+                        <h2>Meeting Room:</h2>
+                        <div class="meeting-name">${sanitizedName}</div>
+                        
+                        <p class="info-text">
+                            Choose how you'd like to join this meeting:
+                        </p>
+                        
+                        <div class="button-group">
+                            <a href="${jitsiMeetingUrl}" target="_blank" class="btn">
+                                🚀 Join in New Tab
+                            </a>
+                            <button onclick="loadInFrame()" class="btn btn-secondary">
+                                📺 Load Here (iframe)
+                            </button>
+                        </div>
+                        
+                        <p class="info-text" style="margin-top: 1.5rem; font-size: 0.9rem;">
+                            If you experience issues with the embedded version, use the "Join in New Tab" option for better compatibility.
+                        </p>
+                    </div>
+                </div>
+            `;
+            
+            // Function to load meeting in iframe
+            window.loadInFrame = function() {
+                const iframe = document.createElement('iframe');
+                iframe.id = 'jitsi-iframe';
+                iframe.src = jitsiMeetingUrl;
+                iframe.allow = 'camera; microphone; fullscreen; display-capture; autoplay; clipboard-write';
+                iframe.allowFullscreen = true;
+                
+                document.getElementById('meeting-container').innerHTML = '';
+                document.getElementById('meeting-container').appendChild(iframe);
+            };
+            
+            // Auto-redirect option (uncomment if you want automatic redirect)
+            // window.location.href = jitsiMeetingUrl;
+            
         } else {
             // Show instructions if no meeting parameter
             document.getElementById('meeting-container').innerHTML = `
-                <div class="no-meeting">
+                <div class="meeting-page">
                     <h1>🎥 American Income Life - Video Meetings</h1>
                     <p>
                         To start or join a meeting, add <code>?meeting=YourMeetingName</code> to the URL.
