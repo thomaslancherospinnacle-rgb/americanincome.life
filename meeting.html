@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Meeting</title>
+  <style>
+    body{font-family:system-ui,Arial;margin:18px}
+    .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+    video{width:min(520px,100%);background:#000;border-radius:12px}
+    button,input{padding:10px 12px;border:1px solid #ccc;border-radius:10px}
+    button{cursor:pointer}
+    .muted{color:#555}
+    code{background:#f3f3f3;padding:2px 6px;border-radius:8px}
+  </style>
+</head>
+<body>
+  <h2>Simple WebRTC Meeting</h2>
+
+  <div class="row">
+    <div>Room: <code id="room"></code></div>
+    <div>Status: <span class="muted" id="status">Idle</span></div>
+  </div>
+
+  <div class="row">
+    <button id="start">Start Camera</button>
+    <button id="call" disabled>Join / Call</button>
+    <button id="hang" disabled>Hang Up</button>
+  </div>
+
+  <div class="row">
+    <div>
+      <div class="muted">Local</div>
+      <video id="local" playsinline autoplay muted></video>
+    </div>
+    <div>
+      <div class="muted">Remote</div>
+      <video id="remote" playsinline autoplay></video>
+    </div>
+  </div>
+
+  <script>
+    // =============================
+    // CONFIG: put your signaling server URL here
+    // Example: "wss://your-signal-host.example.com"
+    // If your signaling server runs locally: "ws://localhost:8080"
+    // =============================
+    const SIGNALING_URL = "ws://localhost:8080";
+
+    // Read your required format: /meeting.html?=ROOMID
+    function getRoomId() {
+      const s = location.search || "";
+      if (s.startsWith("?=")) return s.slice(2).trim();
+      // fallback support: ?room=ROOMID
+      const u = new URL(location.href);
+      return (u.searchParams.get("room") || "").trim();
+    }
+
+    function sanitizeRoom(x) {
+      return (x || "").replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 64);
+    }
+
+    const roomId = sanitizeRoom(getRoomId()) || "demo";
+    document.getElementById("room").textContent = roomId;
+
+    const statusEl = document.getElementById("status");
+    const setStatus = (t) => statusEl.textContent = t;
+
+    const btnStart = document.getElementById("start");
+    const btnCall  = document.getElementById("call");
+    const btnHang  = document.getElementById("hang");
+
+    const vLocal  = document.getElementById("local");
+    const vRemote = document.getElementById("remote");
+
+    let ws = null;
+    let pc = null;
+    let localStream = null;
+    let remoteStream = null;
+    let makingOffer = false;
+
+    const iceServers = [
+      { urls: "stun:stun.l.google.com:19302" }
+    ];
+
+    function send(msg) {
+      if (ws && ws.readyState === 1) ws.send(JSON.stringify(msg));
+    }
+
+    function ensureWS() {
+      return new Promise((resolve, reject) => {
+        if (ws && ws.readyState === 1) return resolve();
+
+        ws = new WebSocket(SIGNALING_URL);
+
+        ws.onopen = () => {
+          send({ type: "join", room: roomId });
+          resolve();
+        };
+
+        ws.onerror = (e) => reject(e);
+
+        ws.onmessage = async (ev) => {
+          const msg = JSON.parse(ev.data);
+
+          if (!pc) return;
+
+          if (msg.type === "description") {
+            const description = msg.description;
+
+            const offerCollision = (description.type === "offer") && (makingOffer || pc.signalingState !== "stable");
+            // super-simple glare handling: ignore offers during collision
+            if (offerCollision) return;
+
+            await pc.setRemoteDescription(description);
+
+            if (description.type === "offer") {
+              await pc.setLocalDescription(await pc.createAnswer());
+              send({ type: "description", room: roomId, description: pc.localDescription });
+            }
+          }
+
+          if (msg.type === "candidate") {
+            try {
+              await pc.addIceCandidate(msg.candidate);
+            } catch (e) {
+              // ignore if remote description not set yet, or candidate fails
+            }
+          }
+        };
+      });
+    }
+
+    async function startCamera() {
+      localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      vLocal.srcObject = localStream;
+      btnCall.disabled = false;
+      setStatus("Camera ready");
+    }
+
+    async function createPeer() {
+      pc = new RTCPeerConnection({ iceServers });
+
+      remoteStream = new MediaStream();
+      vRemote.srcObject = remoteStream;
+
+      // Send local tracks
+      localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
+
+      // Receive remote tracks
+      pc.ontrack = (ev) => {
+        ev.streams[0].getTracks().forEach(t => remoteStream.addTrack(t));
+      };
+
+      // ICE -> signaling
+      pc.onicecandidate = (ev) => {
+        if (ev.candidate) send({ type: "candidate", room: roomId, candidate: ev.candidate });
+      };
+
+      // Optional: connection state
+      pc.onconnectionstatechange = () => {
+        setStatus("Peer: " + pc.connectionState);
+      };
+    }
+
+    async function joinCall() {
+      btnCall.disabled = true;
+      btnHang.disabled = false;
+
+      setStatus("Connecting signaling…");
+      await ensureWS();
+
+      setStatus("Creating peer…");
+      await createPeer();
+
+      // One side will naturally become "offerer" when they click first.
+      setStatus("Negotiating…");
+      pc.onnegotiationneeded = async () => {
+        try {
+          makingOffer = true;
+          await pc.setLocalDescription(await pc.createOffer());
+          send({ type: "description", room: roomId, description: pc.localDescription });
+        } finally {
+          makingOffer = false;
+        }
+      };
+
+      setStatus("Waiting for peer…");
+    }
+
+    function hangUp() {
+      btnHang.disabled = true;
+      btnCall.disabled = false;
+
+      if (pc) {
+        pc.ontrack = null;
+        pc.onicecandidate = null;
+        pc.onnegotiationneeded = null;
+        pc.close();
+        pc = null;
+      }
+
+      if (ws) {
+        try { ws.close(); } catch {}
+        ws = null;
+      }
+
+      if (remoteStream) {
+        remoteStream.getTracks().forEach(t => t.stop());
+        remoteStream = null;
+      }
+
+      vRemote.srcObject = null;
+      setStatus("Hung up");
+    }
+
+    btnStart.onclick = async () => {
+      try { await startCamera(); }
+      catch (e) { alert("Camera/Mic blocked or unavailable."); }
+    };
+
+    btnCall.onclick = async () => {
+      try { await joinCall(); }
+      catch (e) {
+        console.error(e);
+        alert("Could not connect. Check SIGNALING_URL and that the WS server is running.");
+        btnCall.disabled = false;
+        btnHang.disabled = true;
+        setStatus("Failed");
+      }
+    };
+
+    btnHang.onclick = () => hangUp();
+  </script>
+</body>
+</html>
