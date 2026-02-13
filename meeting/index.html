@@ -15,13 +15,15 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: #000;
             overflow: hidden;
+            height: 100vh;
         }
 
-        /* Slideshow Container */
+        /* Slideshow Container - Top 60% */
         .slideshow-container {
             position: fixed;
             width: 100%;
-            height: 100%;
+            height: 60%;
+            top: 0;
             background: #000;
         }
 
@@ -43,82 +45,75 @@
             object-fit: cover;
         }
 
-        /* Dark Overlay */
-        .overlay {
+        /* Dark Blue Top Bar */
+        .top-bar {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
-            height: 100%;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.6) 100%);
-            z-index: 5;
+            background: #003d82;
+            padding: 1rem 2rem;
+            z-index: 20;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
         }
 
-        /* Top Left Logo */
-        .top-logo {
-            position: fixed;
-            top: 2rem;
-            left: 2rem;
-            z-index: 10;
-            background: rgba(255, 255, 255, 0.95);
-            padding: 1rem 1.5rem;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-        }
-
-        .top-logo img {
+        .top-bar img {
             height: 50px;
             width: auto;
         }
 
-        /* Bottom Content Section */
-        .bottom-content {
+        /* White Bottom Section - 40% */
+        .bottom-section {
             position: fixed;
             bottom: 0;
             left: 0;
             width: 100%;
+            height: 40%;
+            background: white;
             z-index: 10;
-            padding: 3rem 2rem 2rem;
-            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.7) 50%, transparent 100%);
         }
 
-        .content-wrapper {
+        .bottom-content {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 2rem 3rem;
             max-width: 1400px;
             margin: 0 auto;
-            display: flex;
-            align-items: flex-end;
-            justify-content: space-between;
-            gap: 3rem;
+            position: relative;
         }
 
         /* Left Side - Meeting Info */
         .meeting-info {
             flex: 1;
-            color: white;
+            padding-right: 2rem;
         }
 
         .meeting-info h1 {
-            font-size: 3rem;
+            font-size: 2.8rem;
             font-weight: 300;
             line-height: 1.2;
             margin-bottom: 1rem;
             font-style: italic;
+            color: #333;
         }
 
         .meeting-info h1 strong {
             font-weight: 700;
             display: block;
+            color: #003d82;
         }
 
         .meeting-info p {
-            font-size: 1.3rem;
-            opacity: 0.95;
+            font-size: 1.2rem;
+            color: #666;
             margin-bottom: 1.5rem;
         }
 
         .meeting-badge {
             display: inline-block;
-            background: rgba(46, 125, 50, 0.9);
+            background: #2e7d32;
             color: white;
             padding: 0.75rem 2rem;
             border-radius: 6px;
@@ -128,36 +123,57 @@
             letter-spacing: 0.5px;
         }
 
+        /* Center - Meeting Type Logo */
+        .center-logo {
+            position: absolute;
+            left: 50%;
+            top: -80px;
+            transform: translateX(-50%);
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            z-index: 15;
+        }
+
+        .center-logo img {
+            max-width: 300px;
+            max-height: 160px;
+            width: auto;
+            height: auto;
+            display: block;
+        }
+
         /* Right Side - Countdown */
         .countdown-section {
-            background: rgba(30, 60, 114, 0.95);
-            padding: 2.5rem 3rem;
+            background: #003d82;
+            padding: 2rem 2.5rem;
             border-radius: 12px;
             text-align: center;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-            min-width: 350px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            min-width: 300px;
         }
 
         .countdown-label {
             color: white;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             margin-bottom: 1rem;
             opacity: 0.95;
             font-weight: 500;
         }
 
         .countdown {
-            font-size: 5rem;
+            font-size: 4.5rem;
             font-weight: 700;
             color: #ffd700;
             font-variant-numeric: tabular-nums;
-            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
-            margin-bottom: 1rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            margin-bottom: 0.5rem;
         }
 
         .status-message {
             color: white;
-            font-size: 1rem;
+            font-size: 0.95rem;
             opacity: 0.85;
         }
 
@@ -187,10 +203,15 @@
 
         /* Mobile Responsive */
         @media (max-width: 968px) {
-            .content-wrapper {
+            .bottom-content {
                 flex-direction: column;
-                align-items: stretch;
-                gap: 2rem;
+                padding: 2rem 1.5rem;
+                gap: 1rem;
+            }
+
+            .meeting-info {
+                padding-right: 0;
+                text-align: center;
             }
 
             .meeting-info h1 {
@@ -198,54 +219,62 @@
             }
 
             .meeting-info p {
-                font-size: 1.1rem;
+                font-size: 1rem;
+            }
+
+            .center-logo {
+                position: relative;
+                left: 0;
+                top: 0;
+                transform: none;
+                margin: 1rem auto;
+            }
+
+            .center-logo img {
+                max-width: 200px;
+                max-height: 100px;
             }
 
             .countdown-section {
                 min-width: auto;
-                padding: 2rem;
+                width: 100%;
+                padding: 1.5rem;
             }
 
             .countdown {
-                font-size: 4rem;
+                font-size: 3.5rem;
             }
 
-            .top-logo {
-                top: 1rem;
-                left: 1rem;
+            .top-bar {
                 padding: 0.75rem 1rem;
             }
 
-            .top-logo img {
+            .top-bar img {
                 height: 40px;
             }
         }
 
         @media (max-width: 600px) {
-            .bottom-content {
-                padding: 2rem 1rem 1.5rem;
+            .slideshow-container {
+                height: 50%;
+            }
+
+            .bottom-section {
+                height: 50%;
             }
 
             .meeting-info h1 {
                 font-size: 1.5rem;
             }
 
-            .meeting-info p {
-                font-size: 1rem;
-            }
-
             .countdown {
                 font-size: 3rem;
-            }
-
-            .countdown-section {
-                padding: 1.5rem;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Slideshow Background -->
+    <!-- Slideshow Background - Top 60% -->
     <div class="slideshow-container" id="slideshow">
         <div class="slide active">
             <img src="slide1.png" alt="Slide 1">
@@ -264,20 +293,22 @@
         </div>
     </div>
 
-    <!-- Dark Overlay -->
-    <div class="overlay"></div>
-
-    <!-- Top Left Logo -->
-    <div class="top-logo">
-        <img id="meeting-logo" src="" alt="Meeting Logo">
+    <!-- Dark Blue Top Bar with AIL Logo -->
+    <div class="top-bar">
+        <img src="logo.png" alt="American Income Life">
     </div>
 
-    <!-- Bottom Content -->
-    <div class="bottom-content">
-        <div class="content-wrapper">
+    <!-- White Bottom Section - 40% -->
+    <div class="bottom-section">
+        <!-- Center Meeting Type Logo -->
+        <div class="center-logo">
+            <img id="meeting-type-logo" src="" alt="Meeting Type">
+        </div>
+
+        <div class="bottom-content">
             <!-- Left Side - Meeting Info -->
             <div class="meeting-info">
-                <h1 id="meeting-title-main">
+                <h1>
                     <span id="meeting-title-line1">Life Insurance:</span>
                     <strong id="meeting-title-line2">It's for them.</strong>
                 </h1>
@@ -350,8 +381,8 @@
         // Get current meeting type config
         const config = meetingTypes[meetingType] || meetingTypes.standard;
 
-        // Set logo and text
-        document.getElementById('meeting-logo').src = config.logo;
+        // Set meeting type logo and text
+        document.getElementById('meeting-type-logo').src = config.logo;
         document.getElementById('meeting-title-line1').textContent = config.titleLine1;
         document.getElementById('meeting-title-line2').textContent = config.titleLine2;
         document.getElementById('meeting-message').textContent = config.message;
@@ -395,7 +426,7 @@
 
         // If no meeting ID, show error
         if (!meetingId) {
-            document.querySelector('.status-message').innerHTML = '<span style="color: #ff6b6b;">⚠️ No meeting ID provided</span>';
+            document.querySelector('.status-message').innerHTML = '<span style="color: #ffcccc;">⚠️ No meeting ID provided</span>';
         }
     </script>
 </body>
