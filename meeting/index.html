@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Meeting</title>
+  <style>
+    html, body { height: 100%; margin: 0; }
+    #app { height: 100%; width: 100%; background:#000; }
+    .fallback {
+      position: fixed; inset: 0; display:flex; align-items:center; justify-content:center;
+      font-family: system-ui, Arial, sans-serif; color:#fff; background:#0b0b0b; padding:20px;
+    }
+    .box { max-width: 720px; width: 100%; border:1px solid #333; border-radius: 14px; padding: 16px; }
+    .muted { color:#bbb; font-size: 14px; line-height: 1.4; }
+    input, button { padding: 10px 12px; border-radius: 10px; border: 1px solid #444; background:#111; color:#fff; }
+    button { cursor:pointer; }
+    .row { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+    a { color:#8ab4ff; }
+  </style>
+
+  <!-- Jitsi External API -->
+  <script src="https://meet.jit.si/external_api.js"></script>
+</head>
+<body>
+  <div id="app"></div>
+
+  <div id="fallback" class="fallback" style="display:none;">
+    <div class="box">
+      <h2 style="margin:0 0 8px;">Join meeting</h2>
+      <div class="muted">
+        Your link didn’t include a meeting id. Use:<br/>
+        <code style="color:#fff;">/meeting?=YOUR_MEETING_ID</code><br/><br/>
+        Example:<br/>
+        <code style="color:#fff;">/meeting?=csk-12345</code>
+      </div>
+
+      <div class="row">
+        <input id="manualId" placeholder="Enter meeting id" />
+        <button id="go">Join</button>
+      </div>
+
+      <div class="muted" style="margin-top:12px;">
+        Tip: meeting ids should be letters/numbers/dashes only.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ====== 1) Get meeting id from your required format: /meeting?=MEETINGID
+    // Also supports more normal formats:
+    // /meeting?meeting=MEETINGID or /meeting?room=MEETINGID or /meeting#MEETINGID
+    function getMeetingId() {
+      const url = new URL(window.location.href);
+
+      // Your exact requirement: "?=meetingid"
+      const raw = url.search.startsWith("?=") ? url.search.slice(2) : null;
+      if (raw && raw.trim()) return raw.trim();
+
+      // Optional: support common keys
+      const p = url.searchParams;
+      const byKey = p.get("meeting") || p.get("room") || p.get("id");
+      if (byKey && byKey.trim()) return byKey.trim();
+
+      // Optional: hash style #meetingid
+      if (url.hash && url.hash.length > 1) return url.hash.slice(1).trim();
+
+      return "";
+    }
+
+    // Keep room names safe (avoid weird characters)
+    function sanitizeRoomName(name) {
+      // allow letters, numbers, dashes, underscores
+      const safe = (name || "").replace(/[^a-zA-Z0-9_-]/g, "");
+      return safe.slice(0, 80);
+    }
+
+    function showFallback() {
+      document.getElementById("fallback").style.display = "flex";
+      document.getElementById("app").style.display = "none";
+      document.getElementById("go").onclick = () => {
+        const val = sanitizeRoomName(document.getElementById("manualId").value);
+        if (!val) return alert("Enter a meeting id.");
+        const newUrl = `${location.origin}${location.pathname}?=${encodeURIComponent(val)}`;
+        location.href = newUrl;
+      };
+    }
+
+    // ====== 2) Boot Jitsi in-page
+    const meetingId = sanitizeRoomName(getMeetingId());
+
+    if (!meetingId) {
+      showFallback();
+    } else {
+      const domain = "meet.jit.si";
+      const options = {
+        roomName: meetingId,
+        parentNode: document.querySelector("#app"),
+
+        // Optional UI tweaks
+        configOverwrite: {
+          prejoinPageEnabled: true, // shows the "Join meeting" screen
+          // startWithAudioMuted: false,
+          // startWithVideoMuted: false,
+        },
+
+        interfaceConfigOverwrite: {
+          // You can brand later, keep default now
+        },
+
+        // If you want a default display name (optional)
+        // userInfo: { displayName: "Guest" }
+      };
+
+      const api = new JitsiMeetExternalAPI(domain, options);
+
+      // ====== 3) Useful events (optional)
+      api.addListener("videoConferenceJoined", () => {
+        // you can track analytics here
+        // console.log("Joined:", meetingId);
+      });
+
+      // Clean up on page exit
+      window.addEventListener("beforeunload", () => {
+        try { api.dispose(); } catch (e) {}
+      });
+    }
+  </script>
+</body>
+</html>
