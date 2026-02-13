@@ -3,37 +3,27 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Free WebRTC Meeting (No Server)</title>
+  <title>AmericanIncome Meeting</title>
   <style>
     body{font-family:system-ui,Arial;margin:16px}
     .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:10px 0}
     video{width:min(520px,100%);background:#000;border-radius:12px}
-    textarea{width:min(980px,100%);height:140px;padding:10px;border-radius:12px;border:1px solid #ccc;font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;font-size:12px}
     button{padding:10px 12px;border-radius:10px;border:1px solid #ccc;background:#fff;cursor:pointer}
     button:disabled{opacity:.5;cursor:not-allowed}
-    code{background:#f3f3f3;padding:2px 6px;border-radius:8px}
     .muted{color:#555}
-    .box{padding:12px;border:1px solid #ddd;border-radius:14px}
+    code{background:#f3f3f3;padding:2px 6px;border-radius:8px}
   </style>
 </head>
 <body>
-  <h2>WebRTC Meeting — 100% Free (No Server)</h2>
-  <div class="muted">
-    Link format: <code>meeting.html?=ANYTHING</code> (meeting id is just a label here).<br>
-    This version is truly free because it uses <b>manual signaling</b> (copy/paste).
-  </div>
-
+  <h2>WebRTC Meeting</h2>
   <div class="row">
-    <div>Meeting ID: <code id="mid"></code></div>
-    <div>Status: <span class="muted" id="status">Idle</span></div>
+    Room: <code id="room"></code>
+    <span class="muted" id="status">Idle</span>
   </div>
 
   <div class="row">
     <button id="start">Start Camera</button>
-    <button id="createOffer" disabled>Create Offer (Host)</button>
-    <button id="applyOffer" disabled>Apply Offer (Guest)</button>
-    <button id="createAnswer" disabled>Create Answer (Guest)</button>
-    <button id="applyAnswer" disabled>Apply Answer (Host)</button>
+    <button id="hang" disabled>Hang Up</button>
   </div>
 
   <div class="row">
@@ -47,69 +37,79 @@
     </div>
   </div>
 
-  <div class="row">
-    <div class="box" style="flex:1;min-width:320px">
-      <div><b>Offer / Answer</b> (copy/paste between people)</div>
-      <textarea id="sdp" placeholder="Offer or Answer JSON will appear here..."></textarea>
-      <div class="row">
-        <button id="copySdp" disabled>Copy</button>
-        <button id="clearSdp">Clear</button>
-      </div>
-    </div>
-
-    <div class="box" style="flex:1;min-width:320px">
-      <div><b>ICE Candidates</b> (copy/paste these too)</div>
-      <textarea id="ice" placeholder="ICE candidate JSON lines will appear here..."></textarea>
-      <div class="row">
-        <button id="copyIce" disabled>Copy</button>
-        <button id="applyIce" disabled>Apply ICE (paste from other side)</button>
-        <button id="clearIce">Clear</button>
-      </div>
-      <div class="muted">
-        You may need to exchange ICE lines both ways for some networks.
-      </div>
-    </div>
-  </div>
-
 <script>
-  // Meeting ID purely cosmetic here (since there's no server)
-  function getMeetingId() {
+  // ============================
+  // 1) PASTE YOUR APPS SCRIPT URL
+  // ============================
+  const SIGNAL_API = "PASTE_APPS_SCRIPT_WEB_APP_URL_HERE";
+
+  // Link format: /meeting.html?=ROOMID
+  function getRoomId() {
     const s = location.search || "";
     if (s.startsWith("?=")) return s.slice(2).trim();
-    return "";
+    const u = new URL(location.href);
+    return (u.searchParams.get("room") || "").trim();
   }
-  const meetingId = (getMeetingId().replace(/[^a-zA-Z0-9_-]/g, "").slice(0,64)) || "demo";
-  document.getElementById("mid").textContent = meetingId;
+  const roomId = (getRoomId().replace(/[^a-zA-Z0-9_-]/g,"").slice(0,64)) || "demo";
+  document.getElementById("room").textContent = roomId;
 
   const statusEl = document.getElementById("status");
-  const setStatus = (t) => statusEl.textContent = t;
+  const setStatus = (t)=> statusEl.textContent = t;
 
   const btnStart = document.getElementById("start");
-  const btnCreateOffer = document.getElementById("createOffer");
-  const btnApplyOffer  = document.getElementById("applyOffer");
-  const btnCreateAnswer= document.getElementById("createAnswer");
-  const btnApplyAnswer = document.getElementById("applyAnswer");
+  const btnHang  = document.getElementById("hang");
+  const vLocal   = document.getElementById("local");
+  const vRemote  = document.getElementById("remote");
 
-  const sdpArea = document.getElementById("sdp");
-  const iceArea = document.getElementById("ice");
-
-  const btnCopySdp = document.getElementById("copySdp");
-  const btnClearSdp= document.getElementById("clearSdp");
-
-  const btnCopyIce = document.getElementById("copyIce");
-  const btnApplyIce= document.getElementById("applyIce");
-  const btnClearIce= document.getElementById("clearIce");
-
-  const vLocal = document.getElementById("local");
-  const vRemote= document.getElementById("remote");
+  const peerId = (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2)).replace(/[^a-zA-Z0-9_-]/g,"").slice(0,12);
+  let lastTs = 0;
+  let pollTimer = null;
 
   let pc = null;
   let localStream = null;
   let remoteStream = null;
+  let makingOffer = false;
 
-  const iceServers = [
-    { urls: "stun:stun.l.google.com:19302" }
-  ];
+  const iceServers = [{ urls: "stun:stun.l.google.com:19302" }];
+
+  async function api(action, params) {
+    const u = new URL(SIGNAL_API);
+    u.searchParams.set("action", action);
+    for (const [k,v] of Object.entries(params||{})) u.searchParams.set(k, v);
+    const res = await fetch(u.toString(), { cache: "no-store" });
+    return await res.json();
+  }
+
+  async function joinRoom() {
+    const r = await api("join", { room: roomId, peer: peerId });
+    if (!r.ok) throw new Error(r.error || "join_failed");
+  }
+
+  async function sendSig(type, payload) {
+    const r = await api("put", { room: roomId, from: peerId, type, payload });
+    if (!r.ok) throw new Error(r.error || "put_failed");
+  }
+
+  async function poll() {
+    const r = await api("get", { room: roomId, since: String(lastTs), to: peerId });
+    if (!r.ok) return;
+
+    const msgs = r.msgs || [];
+    for (const m of msgs) {
+      lastTs = Math.max(lastTs, Number(m.ts || 0));
+      await onSignalMessage(m.type, m.payload, m.from);
+    }
+  }
+
+  function startPolling() {
+    if (pollTimer) return;
+    pollTimer = setInterval(poll, 1200); // 1.2s polling (simple + stable)
+  }
+
+  function stopPolling() {
+    if (pollTimer) clearInterval(pollTimer);
+    pollTimer = null;
+  }
 
   function ensurePC() {
     if (pc) return pc;
@@ -124,11 +124,8 @@
 
     pc.onicecandidate = (ev) => {
       if (ev.candidate) {
-        // Append ICE candidates as JSON lines
-        const line = JSON.stringify(ev.candidate);
-        iceArea.value += (iceArea.value.trim() ? "\n" : "") + line;
-        btnCopyIce.disabled = false;
-        btnApplyIce.disabled = false;
+        // Send each candidate as it appears
+        sendSig("candidate", JSON.stringify(ev.candidate)).catch(()=>{});
       }
     };
 
@@ -136,116 +133,114 @@
       setStatus("Peer: " + pc.connectionState);
     };
 
+    pc.onnegotiationneeded = async () => {
+      try {
+        makingOffer = true;
+        await pc.setLocalDescription(await pc.createOffer());
+        await sendSig("description", JSON.stringify(pc.localDescription));
+        setStatus("Offer sent, waiting…");
+      } finally {
+        makingOffer = false;
+      }
+    };
+
+    // add local tracks if already available
+    if (localStream) {
+      localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
+    }
+
     return pc;
   }
 
-  async function startCamera() {
+  async function onSignalMessage(type, payload) {
+    const pc = ensurePC();
+
+    if (type === "description") {
+      const desc = JSON.parse(payload);
+
+      const offerCollision = (desc.type === "offer") && (makingOffer || pc.signalingState !== "stable");
+      if (offerCollision) return;
+
+      await pc.setRemoteDescription(desc);
+
+      if (desc.type === "offer") {
+        await pc.setLocalDescription(await pc.createAnswer());
+        await sendSig("description", JSON.stringify(pc.localDescription));
+        setStatus("Answer sent, connecting…");
+      }
+      return;
+    }
+
+    if (type === "candidate") {
+      try {
+        const cand = JSON.parse(payload);
+        await pc.addIceCandidate(cand);
+      } catch {}
+      return;
+    }
+
+    if (type === "reset") {
+      hangUp();
+      return;
+    }
+  }
+
+  async function startCameraAndConnect() {
+    if (!SIGNAL_API || SIGNAL_API.includes("PASTE_")) {
+      alert("You must paste your Google Apps Script Web App URL into SIGNAL_API.");
+      return;
+    }
+
+    setStatus("Requesting camera/mic…");
     localStream = await navigator.mediaDevices.getUserMedia({ video:true, audio:true });
     vLocal.srcObject = localStream;
 
-    const pc = ensurePC();
-    localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
+    setStatus("Joining room…");
+    await joinRoom();
 
-    btnCreateOffer.disabled = false;
-    btnApplyOffer.disabled = false;
-    setStatus("Camera ready");
+    setStatus("Connecting…");
+    ensurePC();
+
+    // Start polling after peer is ready
+    startPolling();
+
+    btnStart.disabled = true;
+    btnHang.disabled = false;
+
+    setStatus("Waiting for other side…");
   }
 
-  function safeParseJSON(text) {
-    try { return JSON.parse(text); } catch { return null; }
+  async function hangUp() {
+    stopPolling();
+
+    try { if (pc) pc.close(); } catch {}
+    pc = null;
+
+    if (remoteStream) {
+      remoteStream.getTracks().forEach(t => t.stop());
+      remoteStream = null;
+    }
+    vRemote.srcObject = null;
+
+    setStatus("Hung up");
+    btnStart.disabled = false;
+    btnHang.disabled = true;
   }
 
   btnStart.onclick = async () => {
-    try { await startCamera(); }
-    catch (e) { alert("Camera/mic blocked or unavailable."); }
-  };
-
-  // HOST FLOW
-  btnCreateOffer.onclick = async () => {
-    const pc = ensurePC();
-    setStatus("Creating offer…");
-    const offer = await pc.createOffer();
-    await pc.setLocalDescription(offer);
-
-    // Put SDP in textarea for copy
-    sdpArea.value = JSON.stringify(pc.localDescription);
-    btnCopySdp.disabled = false;
-
-    // Host next step is Apply Answer (after guest sends it)
-    btnApplyAnswer.disabled = false;
-    setStatus("Offer created. Send it to guest.");
-  };
-
-  btnApplyAnswer.onclick = async () => {
-    const pc = ensurePC();
-    const data = safeParseJSON(sdpArea.value.trim());
-    if (!data || data.type !== "answer") return alert("Paste a valid Answer JSON first.");
-
-    setStatus("Applying answer…");
-    await pc.setRemoteDescription(data);
-    setStatus("Answer applied. If needed, exchange ICE lines.");
-  };
-
-  // GUEST FLOW
-  btnApplyOffer.onclick = async () => {
-    const pc = ensurePC();
-    const data = safeParseJSON(sdpArea.value.trim());
-    if (!data || data.type !== "offer") return alert("Paste a valid Offer JSON first.");
-
-    setStatus("Applying offer…");
-    await pc.setRemoteDescription(data);
-
-    // Now guest can create answer
-    btnCreateAnswer.disabled = false;
-    setStatus("Offer applied. Now create answer.");
-  };
-
-  btnCreateAnswer.onclick = async () => {
-    const pc = ensurePC();
-    setStatus("Creating answer…");
-    const answer = await pc.createAnswer();
-    await pc.setLocalDescription(answer);
-
-    sdpArea.value = JSON.stringify(pc.localDescription);
-    btnCopySdp.disabled = false;
-
-    setStatus("Answer created. Send it to host.");
-  };
-
-  // ICE exchange (both sides)
-  btnApplyIce.onclick = async () => {
-    const pc = ensurePC();
-
-    const lines = iceArea.value.split("\n").map(l => l.trim()).filter(Boolean);
-    if (!lines.length) return alert("Paste ICE candidate JSON lines first.");
-
-    let added = 0;
-    for (const line of lines) {
-      const cand = safeParseJSON(line);
-      if (!cand) continue;
-      try {
-        await pc.addIceCandidate(cand);
-        added++;
-      } catch {}
+    try { await startCameraAndConnect(); }
+    catch (e) {
+      console.error(e);
+      alert("Failed. Check your Apps Script URL + deployment access set to Anyone.");
+      setStatus("Failed");
+      btnStart.disabled = false;
+      btnHang.disabled = true;
     }
-    setStatus(`Applied ICE (${added}). If remote video still blank, exchange more ICE.`);
   };
 
-  // Copy helpers
-  btnCopySdp.onclick = async () => {
-    await navigator.clipboard.writeText(sdpArea.value);
-  };
-  btnCopyIce.onclick = async () => {
-    await navigator.clipboard.writeText(iceArea.value);
-  };
-
-  btnClearSdp.onclick = () => {
-    sdpArea.value = "";
-    btnCopySdp.disabled = true;
-  };
-  btnClearIce.onclick = () => {
-    iceArea.value = "";
-    btnCopyIce.disabled = true;
+  btnHang.onclick = async () => {
+    try { await sendSig("reset", "1"); } catch {}
+    await hangUp();
   };
 </script>
 </body>
