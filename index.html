@@ -11,232 +11,140 @@
             box-sizing: border-box;
         }
 
-        body {
+        body, html {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #1a1a2e;
-            color: white;
         }
 
-        .header {
+        #meeting-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .landing-page {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            padding: 1rem 2rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-        }
-
-        .header h1 {
-            font-size: 1.5rem;
-            font-weight: 600;
-        }
-
-        .header p {
-            opacity: 0.9;
-            font-size: 0.9rem;
-            margin-top: 0.25rem;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
+            color: white;
+            text-align: center;
             padding: 2rem;
         }
 
-        .meeting-info {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
-            padding: 1.5rem;
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 2.5rem;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            opacity: 0.9;
             margin-bottom: 2rem;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 1rem;
         }
 
         .meeting-name {
-            font-size: 1.8rem;
-            color: #ffd700;
+            font-size: 2rem;
             font-weight: 700;
-            margin-bottom: 1rem;
-        }
-
-        .share-link {
-            background: rgba(255, 255, 255, 0.1);
+            color: #ffd700;
+            margin: 1.5rem 0;
+            word-break: break-word;
+            background: rgba(255, 215, 0, 0.1);
             padding: 1rem;
             border-radius: 8px;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-top: 1rem;
         }
 
-        .share-link input {
-            flex: 1;
-            background: transparent;
-            border: none;
-            color: white;
-            font-family: monospace;
-            font-size: 0.9rem;
-        }
-
-        .share-link button {
-            background: #2a5298;
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
+        .info {
+            background: rgba(255, 215, 0, 0.2);
+            border-left: 4px solid #ffd700;
+            padding: 1rem;
             border-radius: 6px;
-            cursor: pointer;
-            font-weight: 500;
+            margin: 1.5rem 0;
+            text-align: left;
+            font-size: 0.95rem;
+            line-height: 1.6;
         }
 
-        .share-link button:hover {
-            background: #1e3c72;
-        }
-
-        .videos {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1rem;
-            margin-top: 2rem;
-        }
-
-        .video-container {
-            background: #000;
-            border-radius: 12px;
-            overflow: hidden;
-            position: relative;
-            aspect-ratio: 16/9;
-        }
-
-        video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .video-label {
-            position: absolute;
-            bottom: 1rem;
-            left: 1rem;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-
-        .controls {
-            position: fixed;
-            bottom: 2rem;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(10px);
+        .btn {
+            background: white;
+            color: #1e3c72;
             padding: 1rem 2rem;
-            border-radius: 50px;
-            display: flex;
-            gap: 1rem;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-        }
-
-        .control-btn {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            display: inline-block;
+            margin: 0.5rem;
+            transition: all 0.3s;
             border: none;
             cursor: pointer;
-            font-size: 1.2rem;
-            transition: all 0.3s;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
         }
 
-        .control-btn:hover {
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .example-links {
+            margin-top: 2rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .example-link {
             background: rgba(255, 255, 255, 0.2);
-            transform: scale(1.1);
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            color: white;
+            text-decoration: none;
+            transition: all 0.2s;
         }
 
-        .control-btn.active {
-            background: #2a5298;
+        .example-link:hover {
+            background: rgba(255, 255, 255, 0.3);
         }
 
-        .control-btn.danger {
-            background: #dc3545;
-        }
-
-        .control-btn.danger:hover {
-            background: #c82333;
-        }
-
-        .status {
-            text-align: center;
-            padding: 3rem 2rem;
-            opacity: 0.7;
-        }
-
-        .participant-count {
-            display: inline-block;
-            background: rgba(42, 82, 152, 0.3);
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            margin-left: 1rem;
+        code {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-family: monospace;
         }
 
         @media (max-width: 768px) {
-            .videos {
-                grid-template-columns: 1fr;
+            h1 {
+                font-size: 1.8rem;
             }
 
-            .controls {
-                bottom: 1rem;
-                padding: 0.75rem 1rem;
+            .card {
+                padding: 2rem;
             }
 
-            .control-btn {
-                width: 45px;
-                height: 45px;
+            .meeting-name {
+                font-size: 1.5rem;
             }
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>🎥 American Income Life - Video Meeting</h1>
-        <p id="meeting-status">Connecting...</p>
-    </div>
+    <div id="app"></div>
 
-    <div class="container">
-        <div class="meeting-info" id="meeting-info" style="display:none;">
-            <div class="meeting-name" id="room-name"></div>
-            <div>
-                <strong>Share this link to invite others:</strong>
-                <div class="share-link">
-                    <input type="text" id="share-url" readonly>
-                    <button onclick="copyLink()">📋 Copy</button>
-                </div>
-            </div>
-            <div class="participant-count">
-                <span id="participant-count">1 participant</span>
-            </div>
-        </div>
-
-        <div class="videos" id="videos"></div>
-        
-        <div class="status" id="status">
-            <h2>Setting up your meeting...</h2>
-            <p>Please allow camera and microphone access</p>
-        </div>
-    </div>
-
-    <div class="controls" id="controls" style="display:none;">
-        <button class="control-btn active" id="mic-btn" onclick="toggleMic()" title="Microphone">
-            🎤
-        </button>
-        <button class="control-btn active" id="cam-btn" onclick="toggleCam()" title="Camera">
-            📹
-        </button>
-        <button class="control-btn danger" onclick="leaveMeeting()" title="Leave">
-            📞
-        </button>
-    </div>
-
-    <!-- Using WebRTC with a simple approach -->
     <script>
         // Get URL parameter
         function getUrlParameter(name) {
@@ -245,113 +153,68 @@
         }
 
         const meetingParam = getUrlParameter('meeting');
-        
-        if (!meetingParam) {
-            document.getElementById('status').innerHTML = `
-                <h2>🎥 American Income Life Meetings</h2>
-                <p style="margin: 2rem 0;">To start a meeting, add ?meeting=YourMeetingName to the URL</p>
-                <p><strong>Example:</strong> www.americanincome.life/meeting.html?meeting=Thomaslancherosail</p>
-                <div style="margin-top: 2rem;">
-                    <a href="?meeting=TeamMeeting" style="display: inline-block; margin: 0.5rem; padding: 1rem 2rem; background: #2a5298; color: white; text-decoration: none; border-radius: 8px; font-weight: 600;">Join Team Meeting</a>
-                    <a href="?meeting=Training" style="display: inline-block; margin: 0.5rem; padding: 1rem 2rem; background: #2a5298; color: white; text-decoration: none; border-radius: 8px; font-weight: 600;">Join Training</a>
+
+        if (meetingParam) {
+            // Sanitize meeting name
+            const sanitizedName = meetingParam.replace(/[^a-zA-Z0-9-_]/g, '').toLowerCase();
+            
+            // Create Whereby room URL
+            // Whereby allows free temporary rooms with this format
+            const wherebyUrl = `https://whereby.com/americanincome-${sanitizedName}`;
+            
+            // Update page title
+            document.title = `Meeting: ${sanitizedName}`;
+            
+            // Create iframe for Whereby
+            const iframe = document.createElement('iframe');
+            iframe.id = 'meeting-iframe';
+            iframe.src = wherebyUrl + '?embed&displayName=&background=off';
+            iframe.allow = 'camera; microphone; fullscreen; speaker; display-capture';
+            iframe.allowFullscreen = true;
+            
+            document.getElementById('app').appendChild(iframe);
+            
+        } else {
+            // Show landing page
+            document.getElementById('app').innerHTML = `
+                <div class="landing-page">
+                    <div class="card">
+                        <h1>🎥 Video Meetings</h1>
+                        <div class="subtitle">American Income Life</div>
+                        
+                        <p style="margin: 1.5rem 0; line-height: 1.6;">
+                            Create instant video meetings by adding a meeting name to the URL
+                        </p>
+                        
+                        <div class="info">
+                            <strong>📝 How to use:</strong><br><br>
+                            Add <code>?meeting=YourName</code> to the URL<br><br>
+                            <strong>Example:</strong><br>
+                            <code>www.americanincome.life/meeting.html?meeting=Thomaslancherosail</code>
+                        </div>
+                        
+                        <div style="margin-top: 2rem;">
+                            <strong>Try it now:</strong>
+                        </div>
+                        
+                        <div class="example-links">
+                            <a href="?meeting=TeamMeeting" class="example-link">Team Meeting</a>
+                            <a href="?meeting=Training" class="example-link">Training Room</a>
+                            <a href="?meeting=Support" class="example-link">Support Call</a>
+                            <a href="?meeting=Sales" class="example-link">Sales Call</a>
+                        </div>
+                        
+                        <div class="info" style="margin-top: 2rem;">
+                            <strong>✨ Features:</strong><br>
+                            • No downloads required<br>
+                            • Works on any device<br>
+                            • Screen sharing included<br>
+                            • Up to 4 people (free tier)<br>
+                            • Simple and professional
+                        </div>
+                    </div>
                 </div>
             `;
-        } else {
-            initMeeting(meetingParam);
-        }
-
-        let localStream;
-        let micEnabled = true;
-        let camEnabled = true;
-
-        async function initMeeting(roomName) {
-            const sanitizedRoom = roomName.replace(/[^a-zA-Z0-9-_]/g, '');
-            
-            // Update UI
-            document.getElementById('room-name').textContent = sanitizedRoom;
-            document.getElementById('share-url').value = window.location.href;
-            document.getElementById('meeting-status').textContent = `Meeting: ${sanitizedRoom}`;
-            
-            try {
-                // Get user media
-                localStream = await navigator.mediaDevices.getUserMedia({
-                    video: true,
-                    audio: true
-                });
-
-                // Show local video
-                addVideoStream('You', localStream, true);
-                
-                // Show controls and info
-                document.getElementById('controls').style.display = 'flex';
-                document.getElementById('meeting-info').style.display = 'block';
-                document.getElementById('status').style.display = 'none';
-
-                // Note: For a full implementation, you would connect to a signaling server here
-                // This is a simplified version showing the UI and local video
-                
-                console.log('Meeting ready:', sanitizedRoom);
-                
-            } catch (error) {
-                console.error('Error accessing media devices:', error);
-                document.getElementById('status').innerHTML = `
-                    <h2>⚠️ Camera/Microphone Access Required</h2>
-                    <p>Please allow access to your camera and microphone to join the meeting.</p>
-                    <button onclick="location.reload()" style="margin-top: 1rem; padding: 1rem 2rem; background: #2a5298; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">Try Again</button>
-                `;
-            }
-        }
-
-        function addVideoStream(name, stream, muted = false) {
-            const videoContainer = document.createElement('div');
-            videoContainer.className = 'video-container';
-            
-            const video = document.createElement('video');
-            video.srcObject = stream;
-            video.autoplay = true;
-            video.playsInline = true;
-            video.muted = muted;
-            
-            const label = document.createElement('div');
-            label.className = 'video-label';
-            label.textContent = name;
-            
-            videoContainer.appendChild(video);
-            videoContainer.appendChild(label);
-            document.getElementById('videos').appendChild(videoContainer);
-        }
-
-        function toggleMic() {
-            micEnabled = !micEnabled;
-            localStream.getAudioTracks()[0].enabled = micEnabled;
-            document.getElementById('mic-btn').classList.toggle('active', micEnabled);
-            document.getElementById('mic-btn').textContent = micEnabled ? '🎤' : '🔇';
-        }
-
-        function toggleCam() {
-            camEnabled = !camEnabled;
-            localStream.getVideoTracks()[0].enabled = camEnabled;
-            document.getElementById('cam-btn').classList.toggle('active', camEnabled);
-            document.getElementById('cam-btn').textContent = camEnabled ? '📹' : '📷';
-        }
-
-        function leaveMeeting() {
-            if (localStream) {
-                localStream.getTracks().forEach(track => track.stop());
-            }
-            window.location.href = window.location.pathname;
-        }
-
-        function copyLink() {
-            const input = document.getElementById('share-url');
-            input.select();
-            document.execCommand('copy');
-            
-            const btn = event.target;
-            btn.textContent = '✓ Copied!';
-            setTimeout(() => {
-                btn.textContent = '📋 Copy';
-            }, 2000);
         }
     </script>
 </body>
