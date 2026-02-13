@@ -13,7 +13,7 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f5f5f5;
+            background: #000;
             overflow: hidden;
         }
 
@@ -43,66 +43,105 @@
             object-fit: cover;
         }
 
-        /* Overlay Content */
+        /* Dark Overlay */
         .overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.6) 100%);
+            z-index: 5;
+        }
+
+        /* Top Left Logo */
+        .top-logo {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
             z-index: 10;
-            background: rgba(0, 0, 0, 0.4);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
 
-        /* Logo Container */
-        .logo-container {
-            background: white;
-            padding: 2.5rem 4rem;
-            border-radius: 16px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-            text-align: center;
-            max-width: 650px;
-            margin-bottom: 2rem;
+        .top-logo img {
+            height: 50px;
+            width: auto;
         }
 
-        .logo-container img {
-            max-width: 450px;
+        /* Bottom Content Section */
+        .bottom-content {
+            position: fixed;
+            bottom: 0;
+            left: 0;
             width: 100%;
-            height: auto;
+            z-index: 10;
+            padding: 3rem 2rem 2rem;
+            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.7) 50%, transparent 100%);
+        }
+
+        .content-wrapper {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 3rem;
+        }
+
+        /* Left Side - Meeting Info */
+        .meeting-info {
+            flex: 1;
+            color: white;
+        }
+
+        .meeting-info h1 {
+            font-size: 3rem;
+            font-weight: 300;
+            line-height: 1.2;
+            margin-bottom: 1rem;
+            font-style: italic;
+        }
+
+        .meeting-info h1 strong {
+            font-weight: 700;
+            display: block;
+        }
+
+        .meeting-info p {
+            font-size: 1.3rem;
+            opacity: 0.95;
             margin-bottom: 1.5rem;
         }
 
-        .logo-container h1 {
-            color: #1e3c72;
-            font-size: 2rem;
-            margin-bottom: 0.75rem;
-            font-weight: 700;
-        }
-
-        .logo-container p {
-            color: #666;
-            font-size: 1.2rem;
-            margin-bottom: 0;
-        }
-
-        /* Countdown */
-        .countdown-container {
-            background: rgba(30, 60, 114, 0.95);
+        .meeting-badge {
+            display: inline-block;
+            background: rgba(46, 125, 50, 0.9);
             color: white;
-            padding: 2.5rem 4rem;
+            padding: 0.75rem 2rem;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Right Side - Countdown */
+        .countdown-section {
+            background: rgba(30, 60, 114, 0.95);
+            padding: 2.5rem 3rem;
             border-radius: 12px;
             text-align: center;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
             min-width: 350px;
         }
 
         .countdown-label {
-            font-size: 1.3rem;
-            margin-bottom: 1.5rem;
+            color: white;
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
             opacity: 0.95;
             font-weight: 500;
         }
@@ -112,12 +151,13 @@
             font-weight: 700;
             color: #ffd700;
             font-variant-numeric: tabular-nums;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+            margin-bottom: 1rem;
         }
 
         .status-message {
-            margin-top: 1.5rem;
-            font-size: 1.1rem;
+            color: white;
+            font-size: 1rem;
             opacity: 0.85;
         }
 
@@ -146,40 +186,60 @@
         }
 
         /* Mobile Responsive */
-        @media (max-width: 768px) {
-            .logo-container {
-                padding: 2rem 1.5rem;
-                margin: 1rem;
+        @media (max-width: 968px) {
+            .content-wrapper {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 2rem;
             }
 
-            .logo-container img {
-                max-width: 280px;
+            .meeting-info h1 {
+                font-size: 2rem;
             }
 
-            .logo-container h1 {
+            .meeting-info p {
+                font-size: 1.1rem;
+            }
+
+            .countdown-section {
+                min-width: auto;
+                padding: 2rem;
+            }
+
+            .countdown {
+                font-size: 4rem;
+            }
+
+            .top-logo {
+                top: 1rem;
+                left: 1rem;
+                padding: 0.75rem 1rem;
+            }
+
+            .top-logo img {
+                height: 40px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .bottom-content {
+                padding: 2rem 1rem 1.5rem;
+            }
+
+            .meeting-info h1 {
                 font-size: 1.5rem;
             }
 
-            .logo-container p {
+            .meeting-info p {
                 font-size: 1rem;
             }
 
             .countdown {
-                font-size: 3.5rem;
+                font-size: 3rem;
             }
 
-            .countdown-container {
-                padding: 2rem 2rem;
-                margin: 0 1rem;
-                min-width: auto;
-            }
-
-            .countdown-label {
-                font-size: 1.1rem;
-            }
-
-            .status-message {
-                font-size: 1rem;
+            .countdown-section {
+                padding: 1.5rem;
             }
         }
     </style>
@@ -204,19 +264,34 @@
         </div>
     </div>
 
-    <!-- Overlay Content -->
-    <div class="overlay">
-        <div class="logo-container">
-            <img id="meeting-logo" src="" alt="Meeting Logo">
-            <h1 id="meeting-title">Please Wait</h1>
-            <p id="meeting-message">Your representative will start the meeting soon</p>
-        </div>
+    <!-- Dark Overlay -->
+    <div class="overlay"></div>
 
-        <div class="countdown-container">
-            <div class="countdown-label">Meeting starts in</div>
-            <div class="countdown" id="countdown">00:00</div>
-            <div class="status-message">
-                Preparing meeting room<span class="loading-dots"><span>.</span><span>.</span><span>.</span></span>
+    <!-- Top Left Logo -->
+    <div class="top-logo">
+        <img id="meeting-logo" src="" alt="Meeting Logo">
+    </div>
+
+    <!-- Bottom Content -->
+    <div class="bottom-content">
+        <div class="content-wrapper">
+            <!-- Left Side - Meeting Info -->
+            <div class="meeting-info">
+                <h1 id="meeting-title-main">
+                    <span id="meeting-title-line1">Life Insurance:</span>
+                    <strong id="meeting-title-line2">It's for them.</strong>
+                </h1>
+                <p id="meeting-message">Your representative will start the meeting soon</p>
+                <div class="meeting-badge">PLEASE WAIT</div>
+            </div>
+
+            <!-- Right Side - Countdown -->
+            <div class="countdown-section">
+                <div class="countdown-label">Meeting starts in</div>
+                <div class="countdown" id="countdown">00:00</div>
+                <div class="status-message">
+                    Preparing meeting room<span class="loading-dots"><span>.</span><span>.</span><span>.</span></span>
+                </div>
             </div>
         </div>
     </div>
@@ -230,38 +305,44 @@
 
         const meetingId = getUrlParameter('meeting');
         const meetingType = getUrlParameter('type') || 'standard';
-        const waitTime = parseInt(getUrlParameter('wait')) || 10; // seconds to wait
+        const waitTime = parseInt(getUrlParameter('wait')) || 10;
 
         // Meeting type configurations
         const meetingTypes = {
             csk: {
                 logo: 'csk.png',
-                title: 'Child Safe Kit Presentation',
-                message: 'Your representative will start the meeting soon'
+                titleLine1: 'Child Safe Kit:',
+                titleLine2: 'Protect What Matters Most.',
+                message: 'Your representative will start the presentation soon'
             },
             hardcard: {
                 logo: 'hardcard.png',
-                title: 'Union Member Benefits',
+                titleLine1: 'Union Benefits:',
+                titleLine2: 'Coverage You Deserve.',
                 message: 'Your union representative will be with you shortly'
             },
             ailplus: {
                 logo: 'ailplus.png',
-                title: 'AIL Plus Coverage Review',
+                titleLine1: 'AIL Plus:',
+                titleLine2: 'Enhanced Protection.',
                 message: 'Your benefits specialist will join shortly'
             },
             willkit: {
                 logo: 'willkit.png',
-                title: 'Estate Planning Session',
+                titleLine1: 'Estate Planning:',
+                titleLine2: 'Secure Your Legacy.',
                 message: 'Your estate planning advisor will be right with you'
             },
             referral: {
                 logo: 'referral.png',
-                title: 'Referral Program Discussion',
-                message: 'Thank you for your referral! Your agent will join shortly'
+                titleLine1: 'Thank You:',
+                titleLine2: 'For Your Referral.',
+                message: 'Your agent will join shortly to discuss the referral program'
             },
             standard: {
                 logo: 'standard.png',
-                title: 'American Income Life Meeting',
+                titleLine1: 'Life Insurance:',
+                titleLine2: "It's for them.",
                 message: 'Your representative will start the meeting soon'
             }
         };
@@ -271,7 +352,8 @@
 
         // Set logo and text
         document.getElementById('meeting-logo').src = config.logo;
-        document.getElementById('meeting-title').textContent = config.title;
+        document.getElementById('meeting-title-line1').textContent = config.titleLine1;
+        document.getElementById('meeting-title-line2').textContent = config.titleLine2;
         document.getElementById('meeting-message').textContent = config.message;
 
         // Slideshow functionality
