@@ -264,6 +264,12 @@
         <input type="text" id="shareLink" readonly />
         <button id="copyLink">Copy Link</button>
       </div>
+      <div style="margin-top: 12px; color: #666; font-size: 13px;">
+        💡 <strong>Tip:</strong> For testing, use simple room names like: 
+        <code style="margin: 0 4px; cursor: pointer;" onclick="window.location.href='?room=test1'">test1</code>
+        <code style="margin: 0 4px; cursor: pointer;" onclick="window.location.href='?room=test2'">test2</code>
+        <code style="margin: 0 4px; cursor: pointer;" onclick="window.location.href='?room=demo'">demo</code>
+      </div>
     </div>
   </div>
 
@@ -271,7 +277,7 @@
   // ============================
   // 1) PASTE YOUR APPS SCRIPT URL
   // ============================
-  const SIGNAL_API = "https://script.google.com/macros/s/AKfycbz0TwmXRGWUCv0YWZRMzMca80qU-3-FjWh4xcf1FZ2HokFaRSOO6H30UVWEokDaK6Rm/exec";
+  const SIGNAL_API = "PASTE_YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE";
 
   // Get room ID from URL (?room=ROOMID or ?=ROOMID)
   function getRoomId() {
@@ -284,7 +290,7 @@
     return url.searchParams.get("room") || "";
   }
 
-  const roomId = (getRoomId().replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 64)) || `room-${Date.now()}`;
+  const roomId = (getRoomId().replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 64)) || "test";
   document.getElementById("room").textContent = roomId;
 
   // Update share link
