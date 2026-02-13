@@ -41,7 +41,6 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            filter: brightness(0.7);
         }
 
         /* Overlay Content */
@@ -56,22 +55,22 @@
             align-items: center;
             justify-content: center;
             z-index: 10;
-            background: rgba(0, 0, 0, 0.3);
+            background: rgba(0, 0, 0, 0.4);
         }
 
         /* Logo Container */
         .logo-container {
             background: white;
-            padding: 2rem 4rem;
+            padding: 2.5rem 4rem;
             border-radius: 16px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
             text-align: center;
-            max-width: 600px;
+            max-width: 650px;
             margin-bottom: 2rem;
         }
 
         .logo-container img {
-            max-width: 400px;
+            max-width: 450px;
             width: 100%;
             height: auto;
             margin-bottom: 1.5rem;
@@ -79,43 +78,47 @@
 
         .logo-container h1 {
             color: #1e3c72;
-            font-size: 1.8rem;
-            margin-bottom: 0.5rem;
+            font-size: 2rem;
+            margin-bottom: 0.75rem;
+            font-weight: 700;
         }
 
         .logo-container p {
             color: #666;
-            font-size: 1.1rem;
-            margin-bottom: 2rem;
+            font-size: 1.2rem;
+            margin-bottom: 0;
         }
 
         /* Countdown */
         .countdown-container {
             background: rgba(30, 60, 114, 0.95);
             color: white;
-            padding: 2rem 3rem;
+            padding: 2.5rem 4rem;
             border-radius: 12px;
             text-align: center;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            min-width: 350px;
         }
 
         .countdown-label {
-            font-size: 1.2rem;
-            margin-bottom: 1rem;
-            opacity: 0.9;
+            font-size: 1.3rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.95;
+            font-weight: 500;
         }
 
         .countdown {
-            font-size: 4rem;
+            font-size: 5rem;
             font-weight: 700;
             color: #ffd700;
             font-variant-numeric: tabular-nums;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .status-message {
-            margin-top: 1rem;
-            font-size: 1rem;
-            opacity: 0.8;
+            margin-top: 1.5rem;
+            font-size: 1.1rem;
+            opacity: 0.85;
         }
 
         /* Loading Animation */
@@ -145,16 +148,16 @@
         /* Mobile Responsive */
         @media (max-width: 768px) {
             .logo-container {
-                padding: 1.5rem 2rem;
+                padding: 2rem 1.5rem;
                 margin: 1rem;
             }
 
             .logo-container img {
-                max-width: 250px;
+                max-width: 280px;
             }
 
             .logo-container h1 {
-                font-size: 1.4rem;
+                font-size: 1.5rem;
             }
 
             .logo-container p {
@@ -162,19 +165,44 @@
             }
 
             .countdown {
-                font-size: 3rem;
+                font-size: 3.5rem;
             }
 
             .countdown-container {
-                padding: 1.5rem 2rem;
+                padding: 2rem 2rem;
                 margin: 0 1rem;
+                min-width: auto;
+            }
+
+            .countdown-label {
+                font-size: 1.1rem;
+            }
+
+            .status-message {
+                font-size: 1rem;
             }
         }
     </style>
 </head>
 <body>
     <!-- Slideshow Background -->
-    <div class="slideshow-container" id="slideshow"></div>
+    <div class="slideshow-container" id="slideshow">
+        <div class="slide active">
+            <img src="slide1.png" alt="Slide 1">
+        </div>
+        <div class="slide">
+            <img src="slide2.png" alt="Slide 2">
+        </div>
+        <div class="slide">
+            <img src="slide3.png" alt="Slide 3">
+        </div>
+        <div class="slide">
+            <img src="slide4.png" alt="Slide 4">
+        </div>
+        <div class="slide">
+            <img src="slide5.png" alt="Slide 5">
+        </div>
+    </div>
 
     <!-- Overlay Content -->
     <div class="overlay">
@@ -209,74 +237,32 @@
             csk: {
                 logo: 'csk.png',
                 title: 'Child Safe Kit Presentation',
-                message: 'Your representative will start the meeting soon',
-                backgrounds: [
-                    'https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=1920', // Office meeting
-                    'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1920', // Professional workspace
-                    'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=1920', // Team collaboration
-                    'https://images.unsplash.com/photo-1553877522-43269d4ea984?w=1920', // Modern office
-                    'https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=1920'  // Business meeting
-                ]
+                message: 'Your representative will start the meeting soon'
             },
             hardcard: {
                 logo: 'hardcard.png',
                 title: 'Union Member Benefits',
-                message: 'Your union representative will be with you shortly',
-                backgrounds: [
-                    'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=1920', // Union workers
-                    'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=1920', // Industrial setting
-                    'https://images.unsplash.com/photo-1541746972996-4e0b0f43e02a?w=1920', // Teamwork
-                    'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1920', // Professional office
-                    'https://images.unsplash.com/photo-1552664730-d307ca884978?w=1920'  // Group discussion
-                ]
+                message: 'Your union representative will be with you shortly'
             },
             ailplus: {
                 logo: 'ailplus.png',
                 title: 'AIL Plus Coverage Review',
-                message: 'Your benefits specialist will join shortly',
-                backgrounds: [
-                    'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=1920', // Professional consultation
-                    'https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=1920', // Business discussion
-                    'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=1920', // Office meeting
-                    'https://images.unsplash.com/photo-1542744173-05336fcc7ad4?w=1920', // Team meeting
-                    'https://images.unsplash.com/photo-1556761175-4b46a572b786?w=1920'  // Professional workspace
-                ]
+                message: 'Your benefits specialist will join shortly'
             },
             willkit: {
                 logo: 'willkit.png',
                 title: 'Estate Planning Session',
-                message: 'Your estate planning advisor will be right with you',
-                backgrounds: [
-                    'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=1920', // Professional documents
-                    'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=1920', // Legal consultation
-                    'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=1920', // Business professional
-                    'https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=1920', // Office environment
-                    'https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=1920'  // Consultation
-                ]
+                message: 'Your estate planning advisor will be right with you'
             },
             referral: {
                 logo: 'referral.png',
                 title: 'Referral Program Discussion',
-                message: 'Thank you for your referral! Your agent will join shortly',
-                backgrounds: [
-                    'https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=1920', // Friendly meeting
-                    'https://images.unsplash.com/photo-1600880292089-90a7e086ee0c?w=1920', // Handshake
-                    'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=1920', // Team collaboration
-                    'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=1920', // Professional setting
-                    'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1920'  // Team success
-                ]
+                message: 'Thank you for your referral! Your agent will join shortly'
             },
             standard: {
                 logo: 'standard.png',
                 title: 'American Income Life Meeting',
-                message: 'Your representative will start the meeting soon',
-                backgrounds: [
-                    'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1920', // Office
-                    'https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=1920', // Professional
-                    'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=1920', // Meeting
-                    'https://images.unsplash.com/photo-1553877522-43269d4ea984?w=1920', // Modern office
-                    'https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=1920'  // Collaboration
-                ]
+                message: 'Your representative will start the meeting soon'
             }
         };
 
@@ -287,15 +273,6 @@
         document.getElementById('meeting-logo').src = config.logo;
         document.getElementById('meeting-title').textContent = config.title;
         document.getElementById('meeting-message').textContent = config.message;
-
-        // Create slideshow
-        const slideshowContainer = document.getElementById('slideshow');
-        config.backgrounds.forEach((url, index) => {
-            const slide = document.createElement('div');
-            slide.className = 'slide' + (index === 0 ? ' active' : '');
-            slide.innerHTML = `<img src="${url}" alt="Background ${index + 1}">`;
-            slideshowContainer.appendChild(slide);
-        });
 
         // Slideshow functionality
         let currentSlide = 0;
