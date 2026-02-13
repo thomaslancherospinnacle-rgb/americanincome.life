@@ -277,7 +277,7 @@
   // ============================
   // 1) PASTE YOUR APPS SCRIPT URL
   // ============================
-  const SIGNAL_API = "https://script.google.com/macros/s/AKfycbz0TwmXRGWUCv0YWZRMzMca80qU-3-FjWh4xcf1FZ2HokFaRSOO6H30UVWEokDaK6Rm/exec";
+  const SIGNAL_API = "PASTE_YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE";
 
   // Get room ID from URL (?room=ROOMID or ?=ROOMID)
   function getRoomId() {
@@ -329,14 +329,15 @@
     { urls: "stun:stun1.l.google.com:19302" }
   ];
 
-  // API helper
+  // API helper - using POST to avoid URL length limits
   async function api(action, params) {
-    const url = new URL(SIGNAL_API);
-    url.searchParams.set("action", action);
-    for (const [k, v] of Object.entries(params || {})) {
-      url.searchParams.set(k, v);
-    }
-    const res = await fetch(url.toString(), { cache: "no-store" });
+    const body = { action, ...params };
+    const res = await fetch(SIGNAL_API, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+      cache: "no-store"
+    });
     return await res.json();
   }
 
