@@ -1,615 +1,433 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>AmericanIncome Meeting</title>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-      margin: 0;
-      padding: 20px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh;
-    }
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      background: white;
-      border-radius: 16px;
-      padding: 24px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-    }
-    h2 {
-      margin: 0 0 20px 0;
-      color: #333;
-      font-size: 28px;
-    }
-    .row {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      align-items: center;
-      margin: 10px 0;
-    }
-    .info-bar {
-      background: #f8f9fa;
-      padding: 12px 16px;
-      border-radius: 8px;
-      margin-bottom: 20px;
-      display: flex;
-      gap: 20px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .info-item {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
-    .label {
-      color: #666;
-      font-size: 14px;
-      font-weight: 500;
-    }
-    code {
-      background: #e9ecef;
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-family: 'Courier New', monospace;
-      font-size: 14px;
-      color: #495057;
-    }
-    .status {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 12px;
-      border-radius: 12px;
-      font-size: 13px;
-      font-weight: 500;
-    }
-    .status.idle { background: #e9ecef; color: #6c757d; }
-    .status.connecting { background: #fff3cd; color: #856404; }
-    .status.connected { background: #d4edda; color: #155724; }
-    .status.error { background: #f8d7da; color: #721c24; }
-    
-    .status::before {
-      content: '';
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: currentColor;
-    }
-    
-    .controls {
-      display: flex;
-      gap: 12px;
-      margin: 20px 0;
-    }
-    button {
-      padding: 12px 24px;
-      border-radius: 8px;
-      border: none;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    button:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-    #start {
-      background: #28a745;
-      color: white;
-    }
-    #start:hover:not(:disabled) {
-      background: #218838;
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
-    }
-    #hang {
-      background: #dc3545;
-      color: white;
-    }
-    #hang:hover:not(:disabled) {
-      background: #c82333;
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
-    }
-    #toggleAudio, #toggleVideo {
-      background: #6c757d;
-      color: white;
-    }
-    #toggleAudio:hover:not(:disabled),
-    #toggleVideo:hover:not(:disabled) {
-      background: #5a6268;
-    }
-    #toggleAudio.muted, #toggleVideo.muted {
-      background: #ffc107;
-      color: #000;
-    }
-    
-    .video-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 16px;
-      margin-top: 20px;
-    }
-    .video-container {
-      position: relative;
-      background: #000;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    }
-    .video-label {
-      position: absolute;
-      top: 12px;
-      left: 12px;
-      background: rgba(0,0,0,0.7);
-      color: white;
-      padding: 6px 12px;
-      border-radius: 6px;
-      font-size: 13px;
-      font-weight: 600;
-      z-index: 10;
-    }
-    video {
-      width: 100%;
-      display: block;
-      background: #000;
-      min-height: 240px;
-    }
-    .share-link {
-      margin-top: 20px;
-      padding: 16px;
-      background: #e7f3ff;
-      border-radius: 8px;
-      border: 1px solid #b3d7ff;
-    }
-    .share-link strong {
-      display: block;
-      margin-bottom: 8px;
-      color: #004085;
-    }
-    .link-box {
-      display: flex;
-      gap: 8px;
-    }
-    .link-box input {
-      flex: 1;
-      padding: 8px 12px;
-      border: 1px solid #ced4da;
-      border-radius: 6px;
-      font-family: 'Courier New', monospace;
-      font-size: 13px;
-    }
-    .link-box button {
-      padding: 8px 16px;
-      background: #007bff;
-      color: white;
-    }
-    .link-box button:hover {
-      background: #0056b3;
-    }
-    
-    @media (max-width: 768px) {
-      .video-grid {
-        grid-template-columns: 1fr;
-      }
-      .controls {
-        flex-direction: column;
-      }
-      button {
-        width: 100%;
-        justify-content: center;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>American Income Life - Meeting</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #000;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* Slideshow Container - Top 60% */
+        .slideshow-container {
+            position: fixed;
+            width: 100%;
+            height: 60%;
+            top: 0;
+            background: #000;
+        }
+
+        .slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 1.5s ease-in-out;
+        }
+
+        .slide.active {
+            opacity: 1;
+        }
+
+        .slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Dark Blue Top Bar */
+        .top-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: #003d82;
+            padding: 1rem 2rem;
+            z-index: 20;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .top-bar img {
+            height: 50px;
+            width: auto;
+        }
+
+        /* White Bottom Section - 40% */
+        .bottom-section {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 40%;
+            background: white;
+            z-index: 10;
+        }
+
+        .bottom-content {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 2rem 3rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        /* Left Side - Meeting Info */
+        .meeting-info {
+            flex: 1;
+            padding-right: 2rem;
+        }
+
+        .meeting-info h1 {
+            font-size: 2.8rem;
+            font-weight: 300;
+            line-height: 1.2;
+            margin-bottom: 1rem;
+            font-style: italic;
+            color: #333;
+        }
+
+        .meeting-info h1 strong {
+            font-weight: 700;
+            display: block;
+            color: #003d82;
+        }
+
+        .meeting-info p {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 1.5rem;
+        }
+
+        .meeting-badge {
+            display: inline-block;
+            background: #2e7d32;
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Center - Meeting Type Logo */
+        .center-logo {
+            position: absolute;
+            left: 50%;
+            top: -80px;
+            transform: translateX(-50%);
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            z-index: 15;
+        }
+
+        .center-logo img {
+            max-width: 300px;
+            max-height: 160px;
+            width: auto;
+            height: auto;
+            display: block;
+        }
+
+        /* Right Side - Countdown */
+        .countdown-section {
+            background: #003d82;
+            padding: 2rem 2.5rem;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            min-width: 300px;
+        }
+
+        .countdown-label {
+            color: white;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            opacity: 0.95;
+            font-weight: 500;
+        }
+
+        .countdown {
+            font-size: 4.5rem;
+            font-weight: 700;
+            color: #ffd700;
+            font-variant-numeric: tabular-nums;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            margin-bottom: 0.5rem;
+        }
+
+        .status-message {
+            color: white;
+            font-size: 0.95rem;
+            opacity: 0.85;
+        }
+
+        /* Loading Animation */
+        .loading-dots {
+            display: inline-block;
+            margin-left: 0.5rem;
+        }
+
+        .loading-dots span {
+            animation: blink 1.4s infinite;
+            animation-fill-mode: both;
+        }
+
+        .loading-dots span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .loading-dots span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes blink {
+            0%, 80%, 100% { opacity: 0; }
+            40% { opacity: 1; }
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 968px) {
+            .bottom-content {
+                flex-direction: column;
+                padding: 2rem 1.5rem;
+                gap: 1rem;
+            }
+
+            .meeting-info {
+                padding-right: 0;
+                text-align: center;
+            }
+
+            .meeting-info h1 {
+                font-size: 2rem;
+            }
+
+            .meeting-info p {
+                font-size: 1rem;
+            }
+
+            .center-logo {
+                position: relative;
+                left: 0;
+                top: 0;
+                transform: none;
+                margin: 1rem auto;
+            }
+
+            .center-logo img {
+                max-width: 200px;
+                max-height: 100px;
+            }
+
+            .countdown-section {
+                min-width: auto;
+                width: 100%;
+                padding: 1.5rem;
+            }
+
+            .countdown {
+                font-size: 3.5rem;
+            }
+
+            .top-bar {
+                padding: 0.75rem 1rem;
+            }
+
+            .top-bar img {
+                height: 40px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .slideshow-container {
+                height: 50%;
+            }
+
+            .bottom-section {
+                height: 50%;
+            }
+
+            .meeting-info h1 {
+                font-size: 1.5rem;
+            }
+
+            .countdown {
+                font-size: 3rem;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <h2>🎥 AmericanIncome Video Meeting</h2>
-    
-    <div class="info-bar">
-      <div class="info-item">
-        <span class="label">Room:</span>
-        <code id="room"></code>
-      </div>
-      <div class="info-item">
-        <span class="label">Status:</span>
-        <span class="status idle" id="status">Idle</span>
-      </div>
+    <!-- Slideshow Background - Top 60% -->
+    <div class="slideshow-container" id="slideshow">
+        <div class="slide active">
+            <img src="slide1.png" alt="Slide 1">
+        </div>
+        <div class="slide">
+            <img src="slide2.png" alt="Slide 2">
+        </div>
+        <div class="slide">
+            <img src="slide3.png" alt="Slide 3">
+        </div>
+        <div class="slide">
+            <img src="slide4.png" alt="Slide 4">
+        </div>
+        <div class="slide">
+            <img src="slide5.png" alt="Slide 5">
+        </div>
     </div>
 
-    <div class="controls">
-      <button id="start">
-        <span>📹</span>
-        <span>Start Meeting</span>
-      </button>
-      <button id="hang" disabled>
-        <span>📞</span>
-        <span>End Call</span>
-      </button>
-      <button id="toggleAudio" disabled>
-        <span>🎤</span>
-        <span>Mute Audio</span>
-      </button>
-      <button id="toggleVideo" disabled>
-        <span>📷</span>
-        <span>Stop Video</span>
-      </button>
+    <!-- Dark Blue Top Bar with AIL Logo -->
+    <div class="top-bar">
+        <img src="logo.png" alt="American Income Life">
     </div>
 
-    <div class="video-grid">
-      <div class="video-container">
-        <div class="video-label">You</div>
-        <video id="local" autoplay playsinline muted></video>
-      </div>
-      <div class="video-container">
-        <div class="video-label">Remote Participant</div>
-        <video id="remote" autoplay playsinline></video>
-      </div>
+    <!-- White Bottom Section - 40% -->
+    <div class="bottom-section">
+        <!-- Center Meeting Type Logo -->
+        <div class="center-logo">
+            <img id="meeting-type-logo" src="" alt="Meeting Type">
+        </div>
+
+        <div class="bottom-content">
+            <!-- Left Side - Meeting Info -->
+            <div class="meeting-info">
+                <h1>
+                    <span id="meeting-title-line1">Life Insurance:</span>
+                    <strong id="meeting-title-line2">It's for them.</strong>
+                </h1>
+                <p id="meeting-message">Your representative will start the meeting soon</p>
+                <div class="meeting-badge">PLEASE WAIT</div>
+            </div>
+
+            <!-- Right Side - Countdown -->
+            <div class="countdown-section">
+                <div class="countdown-label">Meeting starts in</div>
+                <div class="countdown" id="countdown">00:00</div>
+                <div class="status-message">
+                    Preparing meeting room<span class="loading-dots"><span>.</span><span>.</span><span>.</span></span>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="share-link">
-      <strong>📋 Share this meeting link:</strong>
-      <div class="link-box">
-        <input type="text" id="shareLink" readonly />
-        <button id="copyLink">Copy Link</button>
-      </div>
-      <div style="margin-top: 12px; color: #666; font-size: 13px;">
-        💡 <strong>Tip:</strong> For testing, use simple room names like: 
-        <code style="margin: 0 4px; cursor: pointer;" onclick="window.location.href='?room=test1'">test1</code>
-        <code style="margin: 0 4px; cursor: pointer;" onclick="window.location.href='?room=test2'">test2</code>
-        <code style="margin: 0 4px; cursor: pointer;" onclick="window.location.href='?room=demo'">demo</code>
-      </div>
-    </div>
-  </div>
+    <script>
+        // Get URL parameters
+        function getUrlParameter(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
 
-<script>
-  // ============================
-  // 1) PASTE YOUR APPS SCRIPT URL
-  // ============================
-  const SIGNAL_API = "https://script.google.com/macros/s/AKfycbzkNldsHMoqrg47jLBHJGQVmODO0kc1B9msQAVgMyg5WsXdO1ZBg2U4tzoZnyymkL8N/exec";
+        const meetingId = getUrlParameter('meeting');
+        const meetingType = getUrlParameter('type') || 'standard';
+        const waitTime = parseInt(getUrlParameter('wait')) || 10;
 
-  // Get room ID from URL (?room=ROOMID or ?=ROOMID)
-  function getRoomId() {
-    const url = new URL(location.href);
-    // Support ?=ROOMID format
-    if (location.search.startsWith("?=")) {
-      return location.search.slice(2).trim();
-    }
-    // Support ?room=ROOMID format
-    return url.searchParams.get("room") || "";
-  }
+        // Meeting type configurations
+        const meetingTypes = {
+            csk: {
+                logo: 'csk.png',
+                titleLine1: 'Child Safe Kit:',
+                titleLine2: 'Protect What Matters Most.',
+                message: 'Your representative will start the presentation soon'
+            },
+            hardcard: {
+                logo: 'hardcard.png',
+                titleLine1: 'Union Benefits:',
+                titleLine2: 'Coverage You Deserve.',
+                message: 'Your union representative will be with you shortly'
+            },
+            ailplus: {
+                logo: 'ailplus.png',
+                titleLine1: 'AIL Plus:',
+                titleLine2: 'Enhanced Protection.',
+                message: 'Your benefits specialist will join shortly'
+            },
+            willkit: {
+                logo: 'willkit.png',
+                titleLine1: 'Estate Planning:',
+                titleLine2: 'Secure Your Legacy.',
+                message: 'Your estate planning advisor will be right with you'
+            },
+            referral: {
+                logo: 'referral.png',
+                titleLine1: 'Thank You:',
+                titleLine2: 'For Your Referral.',
+                message: 'Your agent will join shortly to discuss the referral program'
+            },
+            standard: {
+                logo: 'standard.png',
+                titleLine1: 'Life Insurance:',
+                titleLine2: "It's for them.",
+                message: 'Your representative will start the meeting soon'
+            }
+        };
 
-  const roomId = (getRoomId().replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 64)) || "test";
-  document.getElementById("room").textContent = roomId;
+        // Get current meeting type config
+        const config = meetingTypes[meetingType] || meetingTypes.standard;
 
-  // Update share link
-  const shareUrl = `${location.origin}${location.pathname}?room=${roomId}`;
-  document.getElementById("shareLink").value = shareUrl;
+        // Set meeting type logo and text
+        document.getElementById('meeting-type-logo').src = config.logo;
+        document.getElementById('meeting-title-line1').textContent = config.titleLine1;
+        document.getElementById('meeting-title-line2').textContent = config.titleLine2;
+        document.getElementById('meeting-message').textContent = config.message;
 
-  const statusEl = document.getElementById("status");
-  function setStatus(text, type = "idle") {
-    statusEl.textContent = text;
-    statusEl.className = `status ${type}`;
-  }
+        // Slideshow functionality
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
 
-  const btnStart = document.getElementById("start");
-  const btnHang = document.getElementById("hang");
-  const btnAudio = document.getElementById("toggleAudio");
-  const btnVideo = document.getElementById("toggleVideo");
-  const vLocal = document.getElementById("local");
-  const vRemote = document.getElementById("remote");
-  const btnCopy = document.getElementById("copyLink");
+        function showNextSlide() {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (currentSlide + 1) % slides.length;
+            slides[currentSlide].classList.add('active');
+        }
 
-  // Generate unique peer ID
-  const peerId = (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2))
-    .replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 12);
-  
-  let lastTs = 0;
-  let pollTimer = null;
-  let pc = null;
-  let localStream = null;
-  let remoteStream = null;
-  let makingOffer = false;
-  let audioEnabled = true;
-  let videoEnabled = true;
+        // Change slide every 5 seconds
+        setInterval(showNextSlide, 5000);
 
-  const iceServers = [
-    { urls: "stun:stun.l.google.com:19302" },
-    { urls: "stun:stun1.l.google.com:19302" }
-  ];
+        // Countdown functionality
+        let timeLeft = waitTime;
+        const countdownEl = document.getElementById('countdown');
 
-  // API helper - using POST to avoid URL length limits
-  async function api(action, params) {
-    const body = { action, ...params };
-    const res = await fetch(SIGNAL_API, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-      cache: "no-store"
-    });
-    return await res.json();
-  }
+        function updateCountdown() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            countdownEl.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            
+            if (timeLeft <= 0) {
+                // Redirect to Jitsi
+                if (meetingId) {
+                    const sanitizedId = meetingId.replace(/[^a-zA-Z0-9-_]/g, '');
+                    window.location.href = `https://meet.jit.si/AmericanIncome-${sanitizedId}`;
+                }
+            } else {
+                timeLeft--;
+            }
+        }
 
-  async function joinRoom() {
-    const r = await api("join", { room: roomId, peer: peerId });
-    if (!r.ok) throw new Error(r.error || "join_failed");
-  }
+        // Update countdown every second
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
 
-  async function sendSig(type, payload) {
-    const r = await api("put", { 
-      room: roomId, 
-      from: peerId, 
-      type, 
-      payload: typeof payload === 'string' ? payload : JSON.stringify(payload)
-    });
-    if (!r.ok) throw new Error(r.error || "put_failed");
-  }
-
-  async function poll() {
-    try {
-      const r = await api("get", { 
-        room: roomId, 
-        since: String(lastTs), 
-        to: peerId 
-      });
-      if (!r.ok) return;
-
-      const msgs = r.msgs || [];
-      for (const m of msgs) {
-        lastTs = Math.max(lastTs, Number(m.ts || 0));
-        await onSignalMessage(m.type, m.payload, m.from);
-      }
-    } catch (err) {
-      console.error("Poll error:", err);
-    }
-  }
-
-  function startPolling() {
-    if (pollTimer) return;
-    pollTimer = setInterval(poll, 1500);
-  }
-
-  function stopPolling() {
-    if (pollTimer) clearInterval(pollTimer);
-    pollTimer = null;
-  }
-
-  function ensurePC() {
-    if (pc) return pc;
-
-    pc = new RTCPeerConnection({ iceServers });
-    remoteStream = new MediaStream();
-    vRemote.srcObject = remoteStream;
-
-    pc.ontrack = (ev) => {
-      ev.streams[0].getTracks().forEach(t => {
-        remoteStream.addTrack(t);
-      });
-      setStatus("Connected", "connected");
-    };
-
-    pc.onicecandidate = (ev) => {
-      if (ev.candidate) {
-        sendSig("candidate", JSON.stringify(ev.candidate)).catch(console.error);
-      }
-    };
-
-    pc.onconnectionstatechange = () => {
-      const state = pc.connectionState;
-      console.log("Connection state:", state);
-      
-      if (state === "connected") {
-        setStatus("Connected", "connected");
-      } else if (state === "disconnected" || state === "failed") {
-        setStatus("Disconnected", "error");
-      } else if (state === "connecting") {
-        setStatus("Connecting...", "connecting");
-      }
-    };
-
-    pc.onnegotiationneeded = async () => {
-      try {
-        makingOffer = true;
-        await pc.setLocalDescription(await pc.createOffer());
-        await sendSig("description", JSON.stringify(pc.localDescription));
-        setStatus("Offer sent, waiting for answer...", "connecting");
-      } catch (err) {
-        console.error("Negotiation error:", err);
-      } finally {
-        makingOffer = false;
-      }
-    };
-
-    // Add local tracks
-    if (localStream) {
-      localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
-    }
-
-    return pc;
-  }
-
-  async function onSignalMessage(type, payload, from) {
-    const peerConn = ensurePC();
-
-    if (type === "description") {
-      const desc = JSON.parse(payload);
-      
-      const offerCollision = (desc.type === "offer") && 
-                            (makingOffer || peerConn.signalingState !== "stable");
-      
-      if (offerCollision) {
-        console.log("Offer collision detected, ignoring");
-        return;
-      }
-
-      await peerConn.setRemoteDescription(desc);
-
-      if (desc.type === "offer") {
-        await peerConn.setLocalDescription(await peerConn.createAnswer());
-        await sendSig("description", JSON.stringify(peerConn.localDescription));
-        setStatus("Answer sent, connecting...", "connecting");
-      }
-      return;
-    }
-
-    if (type === "candidate") {
-      try {
-        const cand = JSON.parse(payload);
-        await peerConn.addIceCandidate(cand);
-      } catch (err) {
-        console.error("ICE candidate error:", err);
-      }
-      return;
-    }
-
-    if (type === "reset") {
-      hangUp();
-      return;
-    }
-  }
-
-  async function startCameraAndConnect() {
-    if (!SIGNAL_API || SIGNAL_API.includes("PASTE_")) {
-      alert("⚠️ Please paste your Google Apps Script Web App URL in the code!\n\nFind SIGNAL_API in the script and replace it with your deployment URL.");
-      return;
-    }
-
-    try {
-      setStatus("Requesting camera/mic...", "connecting");
-      localStream = await navigator.mediaDevices.getUserMedia({ 
-        video: true, 
-        audio: true 
-      });
-      vLocal.srcObject = localStream;
-
-      setStatus("Joining room...", "connecting");
-      await joinRoom();
-
-      setStatus("Setting up connection...", "connecting");
-      ensurePC();
-
-      startPolling();
-
-      btnStart.disabled = true;
-      btnHang.disabled = false;
-      btnAudio.disabled = false;
-      btnVideo.disabled = false;
-
-      setStatus("Waiting for participant...", "connecting");
-    } catch (err) {
-      console.error(err);
-      throw err;
-    }
-  }
-
-  async function hangUp() {
-    stopPolling();
-
-    if (pc) {
-      try { pc.close(); } catch {}
-      pc = null;
-    }
-
-    if (localStream) {
-      localStream.getTracks().forEach(t => t.stop());
-      localStream = null;
-    }
-
-    if (remoteStream) {
-      remoteStream.getTracks().forEach(t => t.stop());
-      remoteStream = null;
-    }
-
-    vLocal.srcObject = null;
-    vRemote.srcObject = null;
-
-    setStatus("Call ended", "idle");
-    btnStart.disabled = false;
-    btnHang.disabled = true;
-    btnAudio.disabled = true;
-    btnVideo.disabled = true;
-    
-    audioEnabled = true;
-    videoEnabled = true;
-    btnAudio.classList.remove("muted");
-    btnVideo.classList.remove("muted");
-    btnAudio.innerHTML = '<span>🎤</span><span>Mute Audio</span>';
-    btnVideo.innerHTML = '<span>📷</span><span>Stop Video</span>';
-  }
-
-  // Event handlers
-  btnStart.onclick = async () => {
-    try {
-      await startCameraAndConnect();
-    } catch (e) {
-      console.error(e);
-      alert("❌ Failed to start meeting.\n\nMake sure:\n1. Your Apps Script URL is correct\n2. Deployment is set to 'Anyone'\n3. Camera/mic permissions are granted");
-      setStatus("Failed to connect", "error");
-      btnStart.disabled = false;
-      btnHang.disabled = true;
-    }
-  };
-
-  btnHang.onclick = async () => {
-    try {
-      await sendSig("reset", "1");
-    } catch {}
-    await hangUp();
-  };
-
-  btnAudio.onclick = () => {
-    if (!localStream) return;
-    audioEnabled = !audioEnabled;
-    localStream.getAudioTracks().forEach(t => t.enabled = audioEnabled);
-    
-    if (audioEnabled) {
-      btnAudio.classList.remove("muted");
-      btnAudio.innerHTML = '<span>🎤</span><span>Mute Audio</span>';
-    } else {
-      btnAudio.classList.add("muted");
-      btnAudio.innerHTML = '<span>🔇</span><span>Unmute Audio</span>';
-    }
-  };
-
-  btnVideo.onclick = () => {
-    if (!localStream) return;
-    videoEnabled = !videoEnabled;
-    localStream.getVideoTracks().forEach(t => t.enabled = videoEnabled);
-    
-    if (videoEnabled) {
-      btnVideo.classList.remove("muted");
-      btnVideo.innerHTML = '<span>📷</span><span>Stop Video</span>';
-    } else {
-      btnVideo.classList.add("muted");
-      btnVideo.innerHTML = '<span>📷</span><span>Start Video</span>';
-    }
-  };
-
-  btnCopy.onclick = () => {
-    const input = document.getElementById("shareLink");
-    input.select();
-    document.execCommand("copy");
-    btnCopy.textContent = "✓ Copied!";
-    setTimeout(() => {
-      btnCopy.textContent = "Copy Link";
-    }, 2000);
-  };
-
-  // Show notification if joining existing room
-  if (getRoomId()) {
-    console.log("Joining existing room:", roomId);
-  }
-</script>
+        // If no meeting ID, show error
+        if (!meetingId) {
+            document.querySelector('.status-message').innerHTML = '<span style="color: #ffcccc;">⚠️ No meeting ID provided</span>';
+        }
+    </script>
 </body>
 </html>
