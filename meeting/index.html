@@ -18,13 +18,14 @@
             height: 100vh;
         }
 
-        /* Slideshow Container - Expanded */
+        /* Slideshow Container - Top 70% */
         .slideshow-container {
             position: fixed;
             width: 100%;
             height: 70%;
             top: 0;
             background: #000;
+            overflow: hidden;
         }
 
         .slide {
@@ -33,10 +34,6 @@
             height: 100%;
             opacity: 0;
             transition: opacity 1.5s ease-in-out;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
         }
 
         .slide.active {
@@ -47,7 +44,7 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            object-position: center center;
+            object-position: center 40%;
         }
 
         /* Dark Blue Top Bar */
@@ -178,6 +175,13 @@
             color: #ffd700;
             font-variant-numeric: tabular-nums;
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            margin-bottom: 0.5rem;
+        }
+
+        .scheduled-time {
+            color: white;
+            font-size: 0.9rem;
+            opacity: 0.75;
             margin-bottom: 0.5rem;
         }
 
@@ -319,7 +323,7 @@
 
     <!-- White Bottom Section - 30% -->
     <div class="bottom-section">
-        <!-- Center Meeting Type Logo (only shows if type is provided) -->
+        <!-- Center Meeting Type Logo -->
         <div class="center-logo" id="center-logo">
             <img id="meeting-type-logo" src="" alt="Meeting Type">
         </div>
@@ -337,8 +341,9 @@
 
             <!-- Right Side - Countdown -->
             <div class="countdown-section">
-                <div class="countdown-label">Meeting starts in</div>
-                <div class="countdown" id="countdown">00:00</div>
+                <div class="countdown-label" id="countdown-label">Meeting starts in</div>
+                <div class="countdown" id="countdown">00:00:00</div>
+                <div class="scheduled-time" id="scheduled-time"></div>
                 <div class="status-message">
                     Preparing meeting room<span class="loading-dots"><span>.</span><span>.</span><span>.</span></span>
                 </div>
@@ -355,7 +360,7 @@
 
         const meetingId = getUrlParameter('meeting');
         const meetingType = getUrlParameter('type');
-        const waitTime = parseInt(getUrlParameter('wait')) || 10;
+        const scheduledDateTime = getUrlParameter('time'); // Format: YYYY-MM-DDTHH:MM
 
         // Meeting type configurations
         const meetingTypes = {
@@ -409,11 +414,6 @@
             document.getElementById('meeting-title-line1').textContent = config.titleLine1;
             document.getElementById('meeting-title-line2').textContent = config.titleLine2;
             document.getElementById('meeting-message').textContent = config.message;
-        } else {
-            // No meeting type - use default text, no logo
-            document.getElementById('meeting-title-line1').textContent = 'Life Insurance:';
-            document.getElementById('meeting-title-line2').textContent = "It's for them.";
-            document.getElementById('meeting-message').textContent = 'Your representative will start the meeting soon';
         }
 
         // Slideshow functionality
@@ -429,33 +429,74 @@
         // Change slide every 5 seconds
         setInterval(showNextSlide, 5000);
 
-        // Countdown functionality
-        let timeLeft = waitTime;
+        // Countdown functionality with scheduled time support
         const countdownEl = document.getElementById('countdown');
+        const scheduledTimeEl = document.getElementById('scheduled-time');
+        const countdownLabelEl = document.getElementById('countdown-label');
+        let targetTime;
+
+        if (scheduledDateTime) {
+            // Scheduled meeting mode
+            targetTime = new Date(scheduledDateTime).getTime();
+            
+            // Display scheduled time
+            const schedDate = new Date(scheduledDateTime);
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric', 
+                hour: 'numeric', 
+                minute: '2-digit',
+                hour12: true 
+            };
+            scheduledTimeEl.textContent = 'Scheduled: ' + schedDate.toLocaleString('en-US', options);
+        } else {
+            // Old countdown mode (fallback)
+            const waitTime = parseInt(getUrlParameter('wait')) || 10;
+            targetTime = Date.now() + (waitTime * 1000);
+        }
 
         function updateCountdown() {
-            const minutes = Math.floor(timeLeft / 60);
-            const seconds = timeLeft % 60;
-            countdownEl.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            const now = Date.now();
+            const timeLeft = targetTime - now;
             
             if (timeLeft <= 0) {
-                // Redirect to Jitsi
+                // Time has passed, redirect to meeting
                 if (meetingId) {
                     const sanitizedId = meetingId.replace(/[^a-zA-Z0-9-_]/g, '');
                     window.location.href = `https://meet.jit.si/AmericanIncome-${sanitizedId}`;
                 }
+                return;
+            }
+            
+            // Calculate time components
+            const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+            
+            // Display format based on time left
+            if (days > 0) {
+                countdownEl.style.fontSize = '3rem';
+                countdownEl.textContent = `${days}d ${String(hours).padStart(2, '0')}h ${String(minutes).padStart(2, '0')}m`;
+            } else if (hours > 0) {
+                countdownEl.style.fontSize = '4.5rem';
+                countdownEl.textContent = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
             } else {
-                timeLeft--;
+                countdownEl.style.fontSize = '4.5rem';
+                countdownEl.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
             }
         }
 
         // Update countdown every second
         updateCountdown();
-        setInterval(updateCountdown, 1000);
+        const countdownInterval = setInterval(updateCountdown, 1000);
 
         // If no meeting ID, show error
         if (!meetingId) {
             document.querySelector('.status-message').innerHTML = '<span style="color: #ffcccc;">⚠️ No meeting ID provided</span>';
+            clearInterval(countdownInterval);
         }
     </script>
 </body>
